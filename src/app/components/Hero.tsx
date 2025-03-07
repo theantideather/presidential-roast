@@ -1,95 +1,61 @@
+"use client";
+
+import { useState } from 'react';
 import Link from 'next/link';
-import { FaLightbulb, FaFileUpload, FaTwitter, FaBitcoin, FaFire } from 'react-icons/fa';
+import Image from 'next/image';
+import { FaArrowDown } from 'react-icons/fa';
 
 export default function Hero() {
+  const [isAnimated, setIsAnimated] = useState(false);
+  
+  useState(() => {
+    // Delay animation to allow page load
+    setTimeout(() => {
+      setIsAnimated(true);
+    }, 300);
+  });
+  
   return (
-    <div className="relative overflow-hidden trump-gradient py-12">
-      {/* Background overlay */}
-      <div className="absolute inset-0 z-0 opacity-10 bg-repeat" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23000000\' fill-opacity=\'0.2\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}></div>
+    <section className="relative min-h-[70vh] flex items-center bg-gradient-to-b from-blue-900 to-blue-800 overflow-hidden">
+      {/* Background pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 bg-stars"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-[url('/presidential-seal.png')] bg-no-repeat bg-center bg-contain opacity-30 transform scale-125"></div>
+      </div>
       
-      <div className="relative z-10 px-4 py-10 md:py-16 mx-auto max-w-7xl">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-12">
-          <div className="w-full md:w-1/2 text-center md:text-left">
-            <h1 className="huge-text trumpify mb-6 trump-glow-text">
-              GET YOUR IDEAS <span className="text-[var(--maga-red)]">ROASTED</span> BY 
-              <br />
-              <span className="text-[var(--gold)]">THE GREATEST PRESIDENT</span>
-              <br />
-              <span className="text-[var(--maga-red)]">OF ALL TIME!</span>
-            </h1>
+      <div className="container mx-auto px-4 py-16 relative z-10">
+        <div className="max-w-5xl mx-auto text-center text-white">
+          <h1 className={`text-4xl md:text-6xl xl:text-7xl font-bold mb-6 transition-transform duration-700 transform ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+            <span className="block trumpify text-[var(--gold)]">PRESIDENTIAL</span>
+            <span className="block trumpify text-white">ROAST</span>
+          </h1>
+          
+          <p className={`text-xl md:text-2xl mb-10 text-blue-100 transition-all duration-700 delay-300 transform ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+            Get roasted by the most tremendous AI in the history of AI, maybe ever.
+            <br/>
+            Many people are saying it's the best roasting you'll ever get, believe me!
+          </p>
+          
+          <div className={`flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 transition-all duration-700 delay-500 transform ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+            <Link href="#roast-form" className="trump-btn text-xl px-8 py-4 rounded-lg font-bold flex items-center">
+              GET ROASTED NOW
+            </Link>
             
-            <p className="text-xl md:text-2xl mb-8 font-bold">
-              TREMENDOUS roasts. THE BEST roasts. BELIEVE ME! 👐
-              <br />
-              Upload your SAD resume or FAILING Twitter and get BIGLY rewards!
-            </p>
-            
-            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-              <Link 
-                href="#roast-form" 
-                className="trump-btn wiggle-on-hover flex items-center"
-              >
-                <FaFire className="mr-2" />
-                ROAST ME NOW!
+            <div className="relative group">
+              <Link href="#how-it-works" className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-800 px-8 py-4 rounded-lg font-bold flex items-center transition-colors">
+                HOW IT WORKS
               </Link>
-              
-              <Link 
-                href="#how-it-works" 
-                className="px-6 py-3 border-2 border-[var(--gold)] bg-white text-[var(--maga-red)] font-bold rounded-lg hover:bg-[var(--gold)] hover:text-black transition-colors flex items-center"
-              >
-                <FaBitcoin className="mr-2" />
-                GET FREE TOKENS
-              </Link>
+              <div className="absolute -right-2 -bottom-2 w-full h-full border-2 border-[var(--gold)] rounded-lg transition-all duration-300 group-hover:translate-x-1 group-hover:translate-y-1"></div>
             </div>
           </div>
           
-          <div className="w-full md:w-1/2 flex justify-center">
-            <div className="gold-border rounded-lg overflow-hidden">
-              <iframe 
-                src="https://giphy.com/embed/26ufj77mgPHLDHgWY" 
-                width="100%" 
-                height="319" 
-                style={{ maxWidth: '480px' }}
-                frameBorder="0" 
-                className="giphy-embed" 
-                allowFullScreen
-              ></iframe>
-            </div>
-          </div>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center hover:shadow-xl transition-shadow border-t-4 border-[var(--maga-red)]">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--maga-red)] text-white rounded-full mb-4">
-              <FaLightbulb className="text-2xl" />
-            </div>
-            <h3 className="text-xl font-bold mb-2 trumpify">YUUGE IDEAS</h3>
-            <p className="text-gray-700 dark:text-gray-300">
-              Your startup idea is probably SAD and LOW ENERGY! Submit it for a TREMENDOUS roast - SO MUCH WINNING!
-            </p>
-          </div>
-          
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center hover:shadow-xl transition-shadow border-t-4 border-[var(--maga-red)]">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--maga-red)] text-white rounded-full mb-4">
-              <FaFileUpload className="text-2xl" />
-            </div>
-            <h3 className="text-xl font-bold mb-2 trumpify">SAD RESUMES</h3>
-            <p className="text-gray-700 dark:text-gray-300">
-              Many people say your resume is a DISASTER! Get it ROASTED by the BEST ROASTER in the HISTORY of roasting!
-            </p>
-          </div>
-          
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center hover:shadow-xl transition-shadow border-t-4 border-[var(--maga-red)]">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--maga-red)] text-white rounded-full mb-4">
-              <FaTwitter className="text-2xl" />
-            </div>
-            <h3 className="text-xl font-bold mb-2 trumpify">FAKE NEWS TWITTER</h3>
-            <p className="text-gray-700 dark:text-gray-300">
-              Your Twitter is FAILING and BORING! Let us roast it BIGLY and earn FANTASTIC crypto rewards!
-            </p>
+          <div className={`mt-16 animate-bounce transition-opacity duration-700 delay-700 ${isAnimated ? 'opacity-100' : 'opacity-0'}`}>
+            <Link href="#roast-form" className="inline-block text-white">
+              <FaArrowDown className="text-3xl" />
+            </Link>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 } 

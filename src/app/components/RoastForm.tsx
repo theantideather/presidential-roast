@@ -24,25 +24,21 @@ export default function RoastForm({ onRoastResult, onRoastError, setIsLoading }:
   const [isTwitterAuthorizing, setIsTwitterAuthorizing] = useState(false);
   const [idea, setIdea] = useState('');
   const [twitterHandle, setTwitterHandle] = useState('');
-  const [twitterAuthorized, setTwitterAuthorized] = useState(false);
-  const [twitterUsername, setTwitterUsername] = useState('');
-  const [twitterProfilePic, setTwitterProfilePic] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState('');
   const [fileContent, setFileContent] = useState('');
   const [isWalletConnected, setIsWalletConnected] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Check if wallet is connected on mount (for the bonus tokens messaging)
   useEffect(() => {
     const checkWalletConnection = () => {
-      const walletAddress = localStorage.getItem('walletAddress');
-      setIsWalletConnected(!!walletAddress);
+      const isConnected = localStorage.getItem('walletAddress') !== null;
+      setIsWalletConnected(isConnected);
     };
     
     checkWalletConnection();
     
-    // Listen for wallet connection events from the Header component
+    // Listen for wallet connection changes
     window.addEventListener('walletConnectionChanged', checkWalletConnection);
     
     return () => {
@@ -51,60 +47,29 @@ export default function RoastForm({ onRoastResult, onRoastError, setIsLoading }:
   }, []);
   
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setFileName(file.name);
-      
-      try {
-        // For text files, read directly
-        if (file.type === 'text/plain') {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            if (event.target?.result) {
-              setFileContent(event.target.result as string);
-              toast.success('Resume loaded successfully!');
-            }
-          };
-          reader.readAsText(file);
-        } 
-        // For all other file types, we'll just use the filename
-        else {
-          // Simplified approach - just use filename for all non-text files
-          setFileContent(`Resume from ${file.name} (File content would be extracted in production)`);
-          toast.success(`File "${file.name}" received! Ready for roasting!`);
-        }
-      } catch (error) {
-        console.error('Error processing file:', error);
-        toast.error('Failed to process the file. Please try again.');
-      }
-    }
-  };
-  
-  // Simplified Twitter handling - no authentication needed, just use the handle
-  const handleTwitterSubmit = () => {
-    if (!twitterHandle.trim()) {
-      toast.error('Please enter a Twitter handle first!');
-      return;
-    }
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
     
-    const username = twitterHandle.replace('@', '').trim();
-    if (username.length < 1) {
-      toast.error('Please enter a valid Twitter handle!');
-      return;
-    }
+    const file = files[0];
+    setFileName(file.name);
     
-    setTwitterUsername(username);
-    setTwitterProfilePic(`https://unavatar.io/twitter/${username}`);
-    setTwitterAuthorized(true);
-    toast.success(`Twitter handle @${username} is ready for roasting! 🔥`);
-  };
-  
-  const disconnectTwitter = () => {
-    setTwitterAuthorized(false);
-    setTwitterUsername('');
-    setTwitterProfilePic('');
-    setTwitterHandle('');
-    toast.info('Twitter account removed!');
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      setFileContent(content || 'Unable to read file content');
+    };
+    
+    reader.onerror = () => {
+      toast.error('Failed to read the file');
+      setFileContent('Error reading file');
+    };
+    
+    if (file.type === 'application/pdf') {
+      // For a real app, you'd extract text from PDF
+      setFileContent(`[Content extracted from PDF: ${file.name}]`);
+    } else {
+      reader.readAsText(file);
+    }
   };
   
   const handleSubmit = async (e: FormEvent) => {
@@ -127,8 +92,8 @@ export default function RoastForm({ onRoastResult, onRoastError, setIsLoading }:
     }
     
     // Set loading states
-    setIsSubmitting(true);
     setIsLoadingState(true);
+    setIsLoading(true);
     
     try {
       let contentToRoast = '';
@@ -162,230 +127,170 @@ export default function RoastForm({ onRoastResult, onRoastError, setIsLoading }:
           analysis: response.data.analysis || '',
           imageUrl: response.data.imageUrl
         });
+        
+        toast.success('ROAST GENERATED SUCCESSFULLY! BIGLY! 🔥');
       } else {
         throw new Error('Invalid response from server');
       }
     } catch (error: any) {
       console.error('Error submitting roast:', error);
       onRoastError(error.response?.data?.error || 'Failed to generate roast. Please try again later.');
+      toast.error('Failed to generate roast. SAD!');
     } finally {
-      setIsSubmitting(false);
       setIsLoadingState(false);
+      setIsLoading(false);
     }
   };
   
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 md:p-8 max-w-3xl mx-auto border-t-8 border-[var(--maga-red)]">
-      <h2 className="text-2xl md:text-3xl trumpify mb-6 text-center text-[var(--maga-red)]">
+    <div className="max-w-4xl mx-auto">
+      <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 trumpify text-[var(--maga-red)]">
         GET BIGLY ROASTED!
       </h2>
       
-      <div className="flex justify-center mb-8">
-        <div className="inline-flex rounded-md shadow-sm" role="group">
+      <div className="card bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border-2 border-[var(--gold)]">
+        {/* Roast Type Selector */}
+        <div className="flex flex-wrap justify-center gap-4 mb-8">
           <button
             type="button"
             onClick={() => setRoastType('idea')}
-            className={`flex items-center px-4 py-2 text-sm font-bold rounded-l-lg ${
-              roastType === 'idea' 
-                ? 'bg-[var(--maga-red)] text-white' 
-                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600'
+            className={`px-6 py-3 rounded-full flex items-center gap-2 font-bold transition-all transform hover:scale-105 ${
+              roastType === 'idea'
+                ? 'bg-[var(--maga-red)] text-white shadow-md'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white'
             }`}
           >
-            <FaLightbulb className="mr-2" />
-            IDEA
+            <FaLightbulb />
+            <span className="trumpify">IDEA</span>
           </button>
+          
           <button
             type="button"
             onClick={() => setRoastType('resume')}
-            className={`flex items-center px-4 py-2 text-sm font-bold ${
-              roastType === 'resume' 
-                ? 'bg-[var(--maga-red)] text-white' 
-                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600'
+            className={`px-6 py-3 rounded-full flex items-center gap-2 font-bold transition-all transform hover:scale-105 ${
+              roastType === 'resume'
+                ? 'bg-[var(--maga-red)] text-white shadow-md'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white'
             }`}
           >
-            <FaFileUpload className="mr-2" />
-            RESUME
+            <FaFileUpload />
+            <span className="trumpify">RESUME</span>
           </button>
+          
           <button
             type="button"
             onClick={() => setRoastType('twitter')}
-            className={`flex items-center px-4 py-2 text-sm font-bold rounded-r-lg ${
-              roastType === 'twitter' 
-                ? 'bg-[var(--maga-red)] text-white' 
-                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600'
+            className={`px-6 py-3 rounded-full flex items-center gap-2 font-bold transition-all transform hover:scale-105 ${
+              roastType === 'twitter'
+                ? 'bg-[var(--maga-red)] text-white shadow-md'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white'
             }`}
           >
-            <FaTwitter className="mr-2" />
-            TWITTER
+            <FaTwitter />
+            <span className="trumpify">TWITTER</span>
           </button>
         </div>
-      </div>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {roastType === 'idea' && (
-          <div>
-            <label htmlFor="idea" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase">
-              Your Idea (Give me your BEST shot!)
-            </label>
-            <textarea
-              id="idea"
-              value={idea}
-              onChange={(e) => setIdea(e.target.value)}
-              rows={5}
-              className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--maga-red)] focus:border-[var(--maga-red)] dark:bg-gray-700"
-              placeholder="Describe your TREMENDOUS idea here! The more detail, the BETTER the roast!"
-              maxLength={1000}
-            />
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-              <div>
-                {idea.length > 0 && idea.length < 100 && (
-                  <span className="text-[var(--maga-red)]">More detail = BETTER roast! Make it LONGER!</span>
-                )}
-              </div>
-              <div>{idea.length}/1000 characters</div>
-            </div>
-          </div>
-        )}
         
-        {roastType === 'resume' && (
-          <div>
-            <label htmlFor="resume" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase">
-              Upload Your Resume (ANY FILE FORMAT)
-            </label>
-            <div className="flex items-center justify-center w-full">
-              <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 transition duration-300 hover:border-[var(--maga-red)]">
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  {fileName ? (
-                    <div className="text-center">
-                      <div className="flex items-center justify-center w-16 h-16 mb-3 rounded-full bg-green-100 text-green-600">
-                        <FaFileUpload className="w-8 h-8" />
-                      </div>
-                      <p className="text-lg font-bold text-gray-700 dark:text-gray-300">{fileName}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Click to change file</p>
-                      {fileContent && (
-                        <div className="mt-2 text-green-600 dark:text-green-400">
-                          <span className="text-xs">✓ File loaded successfully</span>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <>
-                      <FaFileUpload className="w-12 h-12 mb-3 text-gray-500 dark:text-gray-400" />
-                      <p className="mb-2 text-sm text-gray-700 dark:text-gray-300 font-bold">
-                        CLICK TO UPLOAD YOUR RESUME
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        ANY FILE FORMAT ACCEPTED
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
-                        Upload your SAD resume and get it ROASTED!
-                      </p>
-                    </>
-                  )}
-                </div>
-                <input 
-                  id="resume" 
-                  ref={fileInputRef}
-                  type="file" 
-                  accept="*/*"
-                  className="hidden" 
-                  onChange={handleFileChange}
-                />
+        <form onSubmit={handleSubmit}>
+          {/* Form fields based on type */}
+          {roastType === 'idea' && (
+            <div className="mb-6">
+              <label className="block text-lg font-bold mb-3 trumpify text-[var(--maga-red)]">
+                YOUR IDEA (GIVE ME YOUR BEST SHOT!)
               </label>
-            </div>
-          </div>
-        )}
-        
-        {roastType === 'twitter' && (
-          <div>
-            <label htmlFor="twitter" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase">
-              Your Twitter Handle
-            </label>
-            <div className="relative mb-4">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <FaTwitter className="text-[#1DA1F2]" />
-              </div>
-              <input
-                id="twitter"
-                type="text"
-                value={twitterHandle}
-                onChange={(e) => setTwitterHandle(e.target.value)}
-                className="w-full pl-10 px-3 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1DA1F2] focus:border-[#1DA1F2] dark:bg-gray-700"
-                placeholder="@yourhandle"
+              <textarea
+                className="w-full p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[var(--maga-red)] focus:border-[var(--maga-red)] min-h-[200px]"
+                placeholder="Describe your TREMENDOUS idea here! The more detail, the BETTER the roast!"
+                value={idea}
+                onChange={(e) => setIdea(e.target.value)}
               />
             </div>
-            
-            {twitterAuthorized ? (
-              <div className="flex items-center justify-between bg-blue-50 dark:bg-gray-700 p-3 rounded-lg border border-blue-200 dark:border-gray-600">
-                <div className="flex items-center">
-                  <img 
-                    src={twitterProfilePic} 
-                    alt={twitterUsername} 
-                    className="w-10 h-10 rounded-full mr-3 border-2 border-[#1DA1F2]"
-                  />
-                  <div>
-                    <p className="font-bold">@{twitterUsername}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Ready to be roasted!</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={disconnectTwitter}
-                  className="text-sm text-red-500 font-bold hover:underline"
-                >
-                  Remove
-                </button>
+          )}
+          
+          {roastType === 'twitter' && (
+            <div className="mb-6">
+              <label className="block text-lg font-bold mb-3 trumpify text-[var(--maga-red)]">
+                YOUR TWITTER HANDLE
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-xl">@</span>
+                <input
+                  type="text"
+                  className="w-full p-4 pl-10 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[var(--maga-red)] focus:border-[var(--maga-red)]"
+                  placeholder="your_twitter_handle"
+                  value={twitterHandle.replace(/^@/, '')}
+                  onChange={(e) => setTwitterHandle(e.target.value)}
+                />
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={handleTwitterSubmit}
-                className="w-full py-3 flex items-center justify-center bg-[#1DA1F2] text-white font-bold rounded-lg hover:bg-blue-600 transition-colors"
+            </div>
+          )}
+          
+          {roastType === 'resume' && (
+            <div className="mb-6">
+              <label className="block text-lg font-bold mb-3 trumpify text-[var(--maga-red)]">
+                UPLOAD YOUR RESUME (I'LL TELL YOU IF YOU'RE FIRED!)
+              </label>
+              <div 
+                className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-[var(--maga-red)] transition-colors"
+                onClick={() => fileInputRef.current?.click()}
               >
-                <FaTwitter className="mr-2" />
-                Use This Twitter Handle
-              </button>
-            )}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="hidden"
+                  accept=".pdf,.doc,.docx,.txt"
+                />
+                
+                {fileName ? (
+                  <div>
+                    <p className="text-lg font-medium mb-2">File selected:</p>
+                    <p className="text-[var(--maga-red)] font-bold">{fileName}</p>
+                  </div>
+                ) : (
+                  <div>
+                    <FaFileUpload className="mx-auto text-4xl mb-4 text-gray-400 dark:text-gray-500" />
+                    <p className="text-lg font-medium mb-2">Click to upload or drag and drop</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">PDF, DOC, TXT files accepted</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Submit Button */}
+          <div className="mt-8">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full py-4 px-4 text-white font-bold rounded-lg shadow-md transition trumpify text-lg ${
+                isLoading 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'trump-btn wiggle-on-hover'
+              }`}
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <FaSpinner className="animate-spin mr-2" />
+                  GENERATING YOUR ROAST...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center">
+                  ROAST ME BIGLY! <FaArrowRight className="ml-2" />
+                </span>
+              )}
+            </button>
           </div>
-        )}
-        
-        <div className="pt-4">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`w-full py-4 px-4 text-white font-bold rounded-lg shadow-md transition trumpify text-lg ${
-              isSubmitting 
-                ? 'bg-gray-400 cursor-not-allowed' 
-                : 'trump-btn wiggle-on-hover'
-            }`}
-          >
-            {isSubmitting ? (
-              <span className="flex items-center justify-center">
-                <FaSpinner className="animate-spin mr-2" />
-                Roasting in progress...
-              </span>
-            ) : (
-              <span className="flex items-center justify-center">
-                ROAST ME BIGLY! <FaArrowRight className="ml-2" />
-              </span>
-            )}
-          </button>
-        </div>
-      </form>
-      
-      <div className="mt-6 text-center">
-        {isWalletConnected ? (
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-4 text-sm">
-            <p className="font-bold text-[var(--gold)]">WALLET CONNECTED! 💰</p>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Get 0.0001 SOL and mint your roast as an NFT after submission!
-            </p>
-          </div>
-        ) : (
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-4 text-sm text-gray-500 dark:text-gray-400">
-            <p>Connect your wallet to earn Solana tokens and mint your roast as an NFT!</p>
-          </div>
-        )}
+          
+          {/* Bonus Tokens Message */}
+          {isWalletConnected && (
+            <div className="mt-4 p-3 bg-[var(--gold)] bg-opacity-20 rounded-lg text-center border border-[var(--gold)]">
+              <p className="text-[var(--gold)] font-bold">
+                WALLET CONNECTED! 🎉 You'll receive bonus ROAST tokens for this submission!
+              </p>
+            </div>
+          )}
+        </form>
       </div>
     </div>
   );
