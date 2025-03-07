@@ -439,200 +439,262 @@ function getTrumpReactionGif(score: number): string {
   }
 }
 
-// Generate a resume roast that actually analyzes the content
-const generateResumeRoast = (resumeText: string): string => {
-  // Extract key aspects from the resume to roast
-  const lowercaseResume = resumeText.toLowerCase();
+// Make each roast unique and personalized based on content
+function generateResumeRoast(resumeContent: string): string {
+  // Extract key elements from resume
+  const skills = extractSkillsFromResume(resumeContent);
+  const experience = extractExperienceFromResume(resumeContent);
+  const education = extractEducationFromResume(resumeContent);
   
-  // Check for education
-  const hasEducation = lowercaseResume.includes('education') || lowercaseResume.includes('university') || lowercaseResume.includes('college') || lowercaseResume.includes('degree');
+  // Generate more personalized roasts using actual content
+  let roastLines = [];
   
-  // Check for experience
-  const hasExperience = lowercaseResume.includes('experience') || lowercaseResume.includes('work') || lowercaseResume.includes('job');
+  // Add intro line
+  roastLines.push(`I just looked at this so-called resume, folks. DISASTER!`);
   
-  // Check for skills
-  const hasSkills = lowercaseResume.includes('skills') || lowercaseResume.includes('proficient') || lowercaseResume.includes('expertise');
-  
-  // Check common resume buzzwords
-  const buzzwords = ['synergy', 'leverage', 'strategic', 'innovative', 'dynamic', 'proactive', 'solution', 'passionate', 'driven', 'team player'];
-  const foundBuzzwords = buzzwords.filter(word => lowercaseResume.includes(word));
-  
-  // Generate a personalized roast based on resume content
-  let roastParts = [];
-  
-  // Opening line
-  roastParts.push("I just reviewed what people are calling your \"resume\" - if we can even call it that! TERRIBLE!");
-  
-  // Education roast
-  if (hasEducation) {
-    roastParts.push("Your education? OVERRATED schools teaching WORTHLESS subjects! Everyone knows real success comes from NATURAL TALENT, not those FAILING institutions!");
+  // Skills section roast
+  if (skills.length > 0) {
+    const randomSkill = skills[Math.floor(Math.random() * skills.length)];
+    roastLines.push(`You list "${randomSkill}" as a skill? LAUGHABLE! I know KINDERGARTNERS with better ${randomSkill} skills than you.`);
+    
+    if (skills.length > 1) {
+      const anotherSkill = skills.filter(s => s !== randomSkill)[0];
+      roastLines.push(`And "${anotherSkill}"? Please! Who are you trying to fool?`);
+    } else {
+      roastLines.push(`Is that your only skill? Pathetic! I have TREMENDOUS skills, the best skills.`);
+    }
   } else {
-    roastParts.push("No education worth mentioning? SAD! Some people say education isn't important, but those people don't work for ME!");
+    roastLines.push(`Your skills section is EMPTY, just like your chances of getting hired! SAD!`);
   }
   
-  // Experience roast
-  if (hasExperience) {
-    roastParts.push("Your so-called \"experience\" is with LOW ENERGY companies doing MEANINGLESS work! Not impressed! I've had interns with better experience by age 18!");
+  // Experience section roast
+  if (experience) {
+    roastLines.push(`You worked at ${experience}? Never heard of them. LOW ENERGY company!`);
+    roastLines.push(`I bet they were BEGGING you to leave. Nobody keeps bad employees longer than me, believe me.`);
   } else {
-    roastParts.push("Where's the EXPERIENCE? Empty like the promises of a politician - except mine, which are the best promises, everyone says so!");
+    roastLines.push(`No real experience to speak of. ZERO! How do you expect to make America great with NO EXPERIENCE?`);
   }
   
-  // Skills roast
-  if (hasSkills) {
-    roastParts.push("Your skills section? WEAK! These aren't skills, these are things my grandchildren could do better!");
+  // Education section roast
+  if (education) {
+    roastLines.push(`And this education from ${education}? Not impressive. I know people with TREMENDOUS educations.`);
+    roastLines.push(`Did they just GIVE you a degree? Because you certainly don't seem qualified!`);
   } else {
-    roastParts.push("No skills listed? At least you're honest about your COMPLETE LACK OF ABILITIES!");
+    roastLines.push(`School? Did you even go? Doesn't look like it! I went to the BEST schools, believe me.`);
   }
   
-  // Buzzword roast
-  if (foundBuzzwords.length > 0) {
-    roastParts.push(`Using buzzwords like "${foundBuzzwords.join(', ')}"? FAKE RESUME language used by people with NO ACHIEVEMENTS to hide behind big words!`);
-  }
+  // Conclusion
+  roastLines.push(`Listen, I've hired the BEST people, absolutely phenomenal people for my businesses. And let me tell you, with this resume, YOU'RE FIRED before you're even hired! This is the worst resume in the history of resumes, maybe ever!`);
   
-  // Closing assessment
-  roastParts.push("Overall - NOT HIRING MATERIAL! I've seen better qualifications from a DOORKNOB! Would never make it in my tremendous organization. SAD!");
-  
-  return roastParts.join(" ");
-};
+  // Join all parts with appropriate spacing
+  return roastLines.join(' ');
+}
 
-// Generate an idea roast that actually analyzes the content
-const generateIdeaRoast = (ideaText: string): string => {
-  const lowercaseIdea = ideaText.toLowerCase();
+function generateIdeaRoast(idea: string): string {
+  // Extract key concepts from the idea
+  const keywords = idea.toLowerCase().match(/\b\w{5,}\b/g) || ['idea', 'business', 'startup'];
+  const mainTopic = keywords.length > 3 ? keywords[Math.floor(Math.random() * 3)] : keywords[0];
   
-  // Check for common startup categories
-  const isApp = lowercaseIdea.includes('app') || lowercaseIdea.includes('mobile') || lowercaseIdea.includes('application');
-  const isAI = lowercaseIdea.includes('ai') || lowercaseIdea.includes('artificial intelligence') || lowercaseIdea.includes('machine learning');
-  const isBlockchain = lowercaseIdea.includes('blockchain') || lowercaseIdea.includes('crypto') || lowercaseIdea.includes('token') || lowercaseIdea.includes('nft');
-  const isSocialMedia = lowercaseIdea.includes('social') || lowercaseIdea.includes('network') || lowercaseIdea.includes('platform') || lowercaseIdea.includes('community');
-  const isEcommerce = lowercaseIdea.includes('shop') || lowercaseIdea.includes('store') || lowercaseIdea.includes('ecommerce') || lowercaseIdea.includes('marketplace');
+  // Look for specific topics that can be roasted
+  const hasTech = /\b(app|website|software|tech|ai|blockchain|crypto|nft|web3)\b/i.test(idea);
+  const hasProduct = /\b(product|device|gadget|invention)\b/i.test(idea);
+  const hasService = /\b(service|platform|marketplace|subscription)\b/i.test(idea);
+  const hasFinance = /\b(money|finance|banking|investment|profit|revenue)\b/i.test(idea);
   
-  // Check for common idea qualities
-  const isInnovative = lowercaseIdea.includes('new') || lowercaseIdea.includes('innovative') || lowercaseIdea.includes('revolutionary') || lowercaseIdea.includes('disrupt');
-  const mentionsMoney = lowercaseIdea.includes('profit') || lowercaseIdea.includes('revenue') || lowercaseIdea.includes('monetize') || lowercaseIdea.includes('funding');
-  const hasMarket = lowercaseIdea.includes('market') || lowercaseIdea.includes('customer') || lowercaseIdea.includes('client') || lowercaseIdea.includes('user');
+  // Generate a unique roast focused on the main topic
+  let roastLines = [];
   
-  // Count words as a proxy for idea complexity
-  const wordCount = ideaText.split(/\s+/).length;
-  const isDetailedIdea = wordCount > 50;
+  // Intro
+  roastLines.push(`So I just heard about this ${mainTopic.toUpperCase()} idea, and let me tell you, it's a COMPLETE DISASTER!`);
   
-  // Generate a personalized roast based on idea content
-  let roastParts = [];
-  
-  // Opening line
-  roastParts.push(`So I just heard about your "brilliant" idea - ${ideaText.substring(0, 40)}... - and let me tell you, it's one of the ideas I've ever heard. TRULY SPECIAL, but not in a good way!`);
-  
-  // Category-specific roast
-  if (isApp) {
-    roastParts.push("Another APP? The world needs another app like I need a smaller inauguration crowd! SATURATED MARKET! DYING PLATFORM!");
+  // Comment on the verbosity
+  if (idea.length > 200) {
+    roastLines.push(`Very long-winded explanation, folks! SO BORING! I almost fell asleep reading it!`);
+  } else if (idea.length > 100) {
+    roastLines.push(`You talk too much about nothing important. Get to the point!`);
+  } else {
+    roastLines.push(`You barely explained anything! Low effort! SAD!`);
   }
   
-  if (isAI) {
-    roastParts.push("AI this, AI that. Everyone's doing AI now! You're too late to the party - like showing up when all the beautiful cake is GONE!");
+  // Topic-specific roasts
+  if (hasTech) {
+    roastLines.push(`Another tech thing? My 10-year-old son knows more about technology, believe me. He's fantastic with the cyber!`);
+    roastLines.push(`Silicon Valley would LAUGH at this idea. They only fund winners, not LOSERS!`);
   }
   
-  if (isBlockchain) {
-    roastParts.push("BLOCKCHAIN? People are still trying to make these Internet money schemes work? Your crypto idea is worth less than a VENEZUELAN BOLÍVAR!");
+  if (hasProduct) {
+    roastLines.push(`This product would NEVER sell. It's like trying to sell STEAKS at a vegan restaurant. I know products, I have the BEST products.`);
   }
   
-  if (isSocialMedia) {
-    roastParts.push("Another social platform? FAILING TWITTER and BORING FACEBOOK aren't enough for people? Your platform would have fewer users than my first campaign had votes in California!");
+  if (hasService) {
+    roastLines.push(`This service is a JOKE! Nobody would pay for this. I've seen better business plans written by FAILING college students.`);
   }
   
-  if (isEcommerce) {
-    roastParts.push("E-commerce? You're going against AMAZON? Good luck with that! Like bringing a plastic spoon to a nuclear war!");
+  if (hasFinance) {
+    roastLines.push(`Money? You think you understand MONEY? I wrote the book on deals! This wouldn't make a PENNY!`);
   }
   
-  // Idea quality roast
-  if (!isInnovative) {
-    roastParts.push("There's NOTHING new here! I've heard this idea from at least 15 different people, all with more TALENT and better EXECUTION plans!");
+  // Competition roast
+  roastLines.push(`${Math.random() > 0.5 ? 'China is already doing it, and they're doing it better. AMERICA FIRST!' : 'Mexico sent us their idea, and it\'s not their best idea!'}`);
+  
+  // App-specific comment
+  if (idea.includes('app')) {
+    roastLines.push(`Another app? The app market is SATURATED! Nobody wants another app, believe me!`);
+  } else {
+    roastLines.push(`Not even an app? Everyone has apps these days. LOW TECH!`);
   }
   
-  if (!mentionsMoney) {
-    roastParts.push("Where's the MONEY? No revenue model? In business, we care about PROFITS! Something you clearly know NOTHING about!");
-  }
+  // Conclusion
+  roastLines.push(`You want to succeed? Think BIGGER and more BEAUTIFUL, like my tremendous buildings. This idea might be the worst trade deal in the history of trade deals, maybe ever!`);
   
-  if (!hasMarket) {
-    roastParts.push("Who's your MARKET? No customers mentioned! The best ideas, and I know the best ideas, have HUGE markets! TREMENDOUS markets!");
-  }
-  
-  if (!isDetailedIdea) {
-    roastParts.push("Too SHORT! The idea has no DEPTH! My young son Baron could come up with a more detailed business plan!");
-  }
-  
-  // Closing assessment
-  const closingOptions = [
-    "This idea would FAIL FASTER than a CNN lie detector test! NOT INVESTABLE!",
-    "The only investment this deserves is being invested in a PAPER SHREDDER! TERRIBLE!",
-    "If I pitched this on Shark Tank, they would need a BIGGER TANK just to FLUSH IT DOWN! SAD!",
-    "This idea is DOA - DEAD ON ARRIVAL! Even my worst hotels perform better than this would!"
-  ];
-  
-  roastParts.push(closingOptions[Math.floor(Math.random() * closingOptions.length)]);
-  
-  return roastParts.join(" ");
-};
+  // Join all parts with appropriate spacing
+  return roastLines.join(' ');
+}
 
-// Generate a Twitter roast that actually analyzes the username
-const generateTwitterRoast = (twitterHandle: string): string => {
-  // Extract characteristics from the handle
-  const hasNumbers = /\d/.test(twitterHandle);
-  const hasUnderscores = twitterHandle.includes('_');
-  const isAllCaps = twitterHandle === twitterHandle.toUpperCase() && twitterHandle.length > 3;
-  const containsCommonTerms = ['crypto', 'nft', 'eth', 'btc', 'web3', 'dev', 'coder', 'real', 'official', 'the', 'mr', 'mrs', 'miss', 'guru', 'expert', 'coach', 'influencer'].some(term => twitterHandle.toLowerCase().includes(term));
-  const isTooLong = twitterHandle.length > 12;
-  const isTooShort = twitterHandle.length < 4;
+function generateTwitterRoast(twitterHandle: string): string {
+  // Create variations based on the handle
+  const cleanHandle = twitterHandle.replace('@', '');
+  const nameParts = cleanHandle.split(/[_.-]/);
+  const nameLength = cleanHandle.length;
   
-  // Generate a personalized roast
-  let roastParts = [];
+  let roastLines = [];
   
-  // Opening line
-  roastParts.push(`Just took a look at @${twitterHandle}'s Twitter account. VERY LOW ENERGY! Couldn't find a single tweet that didn't bore me to sleep.`);
+  // Intro
+  roastLines.push(`Just checked out @${cleanHandle}'s Twitter. VERY LOW ENERGY!`);
   
-  // Handle-specific roasts
-  if (hasNumbers) {
-    roastParts.push("Using NUMBERS in your handle? Not enough creativity to come up with a real name? SAD!");
+  // Name roast
+  if (nameParts.length > 1) {
+    roastLines.push(`What kind of name is @${cleanHandle}? Trying to be fancy with that "${nameParts[1]}" part? Not working!`);
+  } else if (nameLength > 10) {
+    roastLines.push(`@${cleanHandle}? TOO LONG! Nobody remembers long handles. SAD!`);
+  } else if (nameLength < 5) {
+    roastLines.push(`@${cleanHandle}? TOO SHORT! Couldn't think of anything better? Low creativity!`);
+  } else {
+    roastLines.push(`@${cleanHandle}? BORING name! Should have asked ME for branding advice!`);
   }
   
-  if (hasUnderscores) {
-    roastParts.push("Underscores in the name? What is this, a DATABASE FIELD? Very amateur!");
-  }
-  
-  if (isAllCaps) {
-    roastParts.push("ALL CAPS username? You think SHOUTING makes you important? It doesn't!");
-  }
-  
-  if (containsCommonTerms) {
-    roastParts.push("Using terms like 'crypto' or 'official' in your handle? TRYING TOO HARD to look legitimate!");
-  }
-  
-  if (isTooLong) {
-    roastParts.push("Handle is WAY TOO LONG! The best handles are SHORT and IMPACTFUL. Like mine!");
-  }
-  
-  if (isTooShort) {
-    roastParts.push("Handle is TOO SHORT! Probably grabbed early when Twitter was still relevant! ANCIENT!");
-  }
-  
-  // Follower and content roasts
-  const followerOptions = [
-    "You have FEWER FOLLOWERS than I have HOTELS! And believe me, I own a lot of hotels!",
-    "Your follower count is EMBARRASSING! I get more people at my smallest rallies!",
-    "You call that a following? I've seen GHOST TOWNS with more activity!",
-    "Nobody's listening to your BORING tweets! SAD!"
+  // Follower jokes
+  const followerJokes = [
+    `Probably has more BOTS than real followers. SAD!`,
+    `I bet you can count your followers on one hand. I have MILLIONS!`,
+    `I heard your follower count is going DOWN every day. FAILING @${cleanHandle}!`,
+    `Your engagement rate is the worst in history, maybe ever. Even CNN does better!`
   ];
   
-  const contentOptions = [
-    "Your content is as EXCITING as watching PAINT DRY in SLOW MOTION!",
-    "I've seen more engaging content from a TELEMARKETER SCRIPT!",
-    "Your tweets make CNN's ratings look TREMENDOUS by comparison!",
-    "Even SLEEPY JOE could write more engaging content!"
+  roastLines.push(followerJokes[Math.floor(Math.random() * followerJokes.length)]);
+  
+  // Content roasts
+  const contentRoasts = [
+    `All they do is RETWEET others. No original thoughts!`,
+    `The content is FAKE NEWS, believe me!`,
+    `Just checked your last few tweets. BORING! No wonder nobody engages!`,
+    `Your tweets are a DISASTER. I've seen better content from SLEEPY JOE!`,
+    `You call those tweets? I've had more interesting SPAM emails!`
   ];
   
-  roastParts.push(followerOptions[Math.floor(Math.random() * followerOptions.length)]);
-  roastParts.push(contentOptions[Math.floor(Math.random() * contentOptions.length)]);
+  roastLines.push(contentRoasts[Math.floor(Math.random() * contentRoasts.length)]);
+  roastLines.push(`I have the best tweets, everyone says so. Many people are saying @${cleanHandle} should learn from me.`);
   
-  // Closing line
-  roastParts.push("There isn't enough CAFFEINE in the WORLD to make your account INTERESTING! Maybe try something else? Sad!");
+  // Engagement roast
+  roastLines.push(`The mainstream media won't report this, but @${cleanHandle} has the lowest engagement ratings in history, maybe ever.`);
   
-  return roastParts.join(" ");
-}; 
+  // Conclusion
+  const conclusions = [
+    `Do yourself a favor and hit that follow button on MY account instead!`,
+    `Maybe try posting something INTERESTING for once! Sad!`,
+    `I would block you, but you're not worth the effort!`,
+    `Your Twitter game is WEAK! Tremendously weak!`
+  ];
+  
+  roastLines.push(conclusions[Math.floor(Math.random() * conclusions.length)]);
+  
+  // Join all parts with appropriate spacing
+  return roastLines.join(' ');
+}
+
+// Helper functions to extract information from resume
+function extractSkillsFromResume(resume: string): string[] {
+  // Try to find a skills section first
+  const skillsSection = resume.match(/skills:?(.+?)(?:\n|$)/i) || 
+                      resume.match(/proficiencies:?(.+?)(?:\n|$)/i) ||
+                      resume.match(/proficient in:?(.+?)(?:\n|$)/i);
+  
+  if (skillsSection && skillsSection[1]) {
+    return skillsSection[1].split(/[,.]/).map(s => s.trim()).filter(s => s.length > 3 && s.length < 20);
+  }
+  
+  // If no skills section, try to extract words that might be skills
+  const technicalSkills = resume.match(/\b(javascript|python|typescript|java|c\+\+|ruby|php|html|css|sql|react|angular|vue|node|express|django|flask|spring|docker|kubernetes|aws|azure|gcp|git|jenkins|ci\/cd|agile|scrum)\b/gi);
+  
+  const softSkills = resume.match(/\b(leadership|management|communication|teamwork|problem-solving|analytical|critical-thinking|time-management|organization|creativity|adaptability|flexibility|detail-oriented|customer-service|presentation|negotiation|public-speaking)\b/gi);
+  
+  const tools = resume.match(/\b(excel|word|powerpoint|photoshop|illustrator|figma|sketch|adobe|sap|salesforce|tableau|power-bi|jira|confluence|asana|trello|slack)\b/gi);
+  
+  // Combine all potential skills
+  const allSkills = [...new Set([
+    ...(technicalSkills || []),
+    ...(softSkills || []),
+    ...(tools || [])
+  ].map(s => s.trim().toLowerCase()))];
+  
+  return allSkills.length > 0 ? allSkills : ['nothing impressive'];
+}
+
+function extractExperienceFromResume(resume: string): string {
+  // Try to find company names
+  const experienceSection = resume.match(/experience:?(.+?)(?:\n\n|\n[A-Z]|$)/is);
+  
+  if (experienceSection && experienceSection[1]) {
+    // Look for company names in the experience section
+    const companies = experienceSection[1].match(/\b(at|for|with) ([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2})\b/) ||
+                      experienceSection[1].match(/\b([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2}),?\s+(inc|llc|corp|corporation|company|co)\b/i) ||
+                      experienceSection[1].match(/\b([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2})\b/);
+    
+    if (companies && (companies[2] || companies[1])) {
+      return companies[2] || companies[1];
+    }
+  }
+  
+  // Try to find any capitalized words that might be company names
+  const potentialCompanies = resume.match(/\b([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2})\b/g);
+  
+  if (potentialCompanies && potentialCompanies.length > 0) {
+    // Filter out common non-company words
+    const filteredCompanies = potentialCompanies.filter(c => 
+      !['I', 'Me', 'My', 'University', 'College', 'High', 'School', 'January', 'February', 'March', 
+        'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].includes(c)
+    );
+    
+    if (filteredCompanies.length > 0) {
+      return filteredCompanies[0];
+    }
+  }
+  
+  return '';
+}
+
+function extractEducationFromResume(resume: string): string {
+  // Try to find education institutions
+  const educationSection = resume.match(/education:?(.+?)(?:\n\n|\n[A-Z]|$)/is);
+  
+  if (educationSection && educationSection[1]) {
+    const institutions = educationSection[1].match(/\b(University|College|School) of ([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2})\b/) || 
+                        educationSection[1].match(/\b([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2}) (University|College|School)\b/) ||
+                        educationSection[1].match(/\b([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2})\b/);
+    
+    if (institutions) {
+      return institutions[0];
+    }
+  }
+  
+  // Try to find any reference to education elsewhere
+  const institutions = resume.match(/\b(University|College|School) of ([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2})\b/) || 
+                    resume.match(/\b([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2}) (University|College|School)\b/) ||
+                    resume.match(/\b(Bachelor|Master|PhD|Doctorate|B\.S\.|M\.S\.|M\.A\.|B\.A\.|MBA)\b/i);
+  
+  if (institutions) {
+    return institutions[0];
+  }
+  
+  return '';
+} 
