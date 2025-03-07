@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Enable static export for Netlify
+  output: 'export',
   images: {
-    domains: ['media.giphy.com', 'unavatar.io'],
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
