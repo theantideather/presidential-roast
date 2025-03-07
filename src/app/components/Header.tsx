@@ -291,14 +291,4 @@ export default function Header() {
       )}
     </header>
   );
-}
-
-// Define TypeScript interface for window to include Phantom provider
-declare global {
-  interface Window {
-    phantom?: {
-      solana?: any;
-    };
-    solana?: any;
-  }
 } 
