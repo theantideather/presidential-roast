@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-[#F5F5DC]">
+      <body className="min-h-screen bg-[#F5F5DC] trump-gradient">
         {children}
         <ToastContainer position="bottom-right" />
       </body>
