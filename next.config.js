@@ -7,10 +7,17 @@ const nextConfig = {
         hostname: 'media.giphy.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'unavatar.io',
+        pathname: '/**',
+      }
     ],
   },
-  // Add Netlify specific configuration
-  target: 'serverless',
+  // Remove deprecated target configuration
+  output: 'standalone', // Optimized for Netlify deployment
+  reactStrictMode: true,
+  swcMinify: true,
 };
 
 module.exports = nextConfig; 

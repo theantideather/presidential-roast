@@ -6,10 +6,20 @@
   NEXT_PUBLIC_SOLANA_RPC_URL = "https://api.devnet.solana.com"
   NEXT_PUBLIC_SOLANA_NETWORK = "devnet"
   NODE_ENV = "production"
+  NEXT_TELEMETRY_DISABLED = "1"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Handle client-side routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
