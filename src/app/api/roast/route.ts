@@ -1,95 +1,48 @@
+import { OpenAI } from 'openai';
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || ''
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { type, content } = body;
-    
-    if (!type || !content) {
+    const { content, type } = await request.json();
+
+    if (!content) {
       return NextResponse.json(
-        { error: 'Missing required fields: type and content' },
+        { error: 'No content provided' },
         { status: 400 }
       );
     }
-    
-    // Check if OpenAI API key is set
-    if (!process.env.OPENAI_API_KEY) {
-      console.log("Missing OpenAI API key, using mock data");
-      return mockResponse(type, content);
-    }
-    
-    // Generate a prompt based on the content type
-    let prompt = '';
-    if (type === 'idea') {
-      prompt = `Below is a business or product idea. Roast this idea in the distinctive style of President Donald Trump. The roast should be humorous, exaggerated, and in Trump's unique speaking style with his common phrases, hyperbole, and mannerisms. Use CAPITAL LETTERS for emphasis, like Trump often does. Make it funny but not overly offensive.\n\nIdea: ${content}\n\nTrump's Roast:`;
-    } else if (type === 'resume') {
-      prompt = `Below is a brief summary of someone's resume or qualifications. Roast this resume in the distinctive style of President Donald Trump. The roast should be humorous, exaggerated, and in Trump's unique speaking style with his common phrases, hyperbole, and mannerisms. Use CAPITAL LETTERS for emphasis, like Trump often does. Make it funny but not overly offensive.\n\nResume: ${content}\n\nTrump's Roast:`;
-    } else if (type === 'twitter') {
-      prompt = `Below is a Twitter handle. Pretend you've looked at their Twitter account and roast them in the distinctive style of President Donald Trump. The roast should be humorous, exaggerated, and in Trump's unique speaking style with his common phrases, hyperbole, and mannerisms. Use CAPITAL LETTERS for emphasis, like Trump often does. Make it funny but not overly offensive.\n\nTwitter Handle: @${content}\n\nTrump's Roast:`;
-    } else {
-      return NextResponse.json(
-        { error: 'Invalid type. Must be one of: idea, resume, twitter' },
-        { status: 400 }
-      );
-    }
-    
-    try {
-      // Call OpenAI API
-      const response = await openai.chat.completions.create({
-        model: 'gpt-4', // Use gpt-3.5-turbo if needed for cost reasons
-        messages: [
-          {
-            role: 'system',
-            content: `You are President Donald Trump. You speak in his distinctive style with his common phrases, hyperbole, and mannerisms. You use CAPITAL LETTERS for emphasis. Your task is to roast whatever is presented to you in a humorous way, capturing Trump's essence without being overly offensive.`
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_tokens: 500,
-        temperature: 1.0, // Higher temperature for more creative responses
-      });
-      
-      // Extract the generated roast
-      const roast = response.choices[0]?.message?.content?.trim() || '';
-      
-      // Generate a score (1-10) that correlates with the sentiment
-      // For this demo, we'll use a formula based on the length and exclamation marks as a rough proxy
-      const exclamationCount = (roast.match(/!/g) || []).length;
-      const capsCount = (roast.match(/[A-Z]{3,}/g) || []).length;
-      
-      // Score formula: 1-10 scale weighted by exclamations, caps, and a bit of randomness
-      let scoreBase = Math.min(10, Math.max(1, 
-        3 + 
-        (exclamationCount * 0.5) + 
-        (capsCount * 0.7) + 
-        (Math.random() * 3)
-      ));
-      
-      // Round to nearest integer
-      const score = Math.round(scoreBase);
-      
-      // Executive order if score >= 7
-      const isExecutiveOrder = score >= 7;
-      
-      return NextResponse.json({
-        roast,
-        score,
-        isExecutiveOrder,
-      });
-      
-    } catch (error) {
-      console.error('OpenAI API error:', error);
-      return mockResponse(type, content);
-    }
-    
+
+    const prompt = generatePrompt(content, type);
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-turbo-preview",
+      messages: [
+        {
+          role: "system",
+          content: "You are Donald Trump, the 45th President of the United States. You're known for your unique speaking style, use of superlatives, and memorable catchphrases. Roast the provided content in your distinctive voice."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.9,
+      max_tokens: 500,
+    });
+
+    const roast = response.choices[0].message.content;
+    const score = calculateRoastScore(roast || '');
+    const isExecutiveOrder = Math.random() < 0.1; // 10% chance
+
+    return NextResponse.json({
+      roast,
+      score,
+      isExecutiveOrder,
+    });
   } catch (error) {
     console.error('Error generating roast:', error);
     return NextResponse.json(
@@ -97,6 +50,48 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+function generatePrompt(content: string, type: string): string {
+  switch (type) {
+    case 'resume':
+      return `Roast this resume in your signature style:\n\n${content}`;
+    case 'idea':
+      return `Someone just pitched you this business idea. Roast it:\n\n${content}`;
+    case 'twitter':
+      return `Roast this Twitter account:\n\n@${content}`;
+    default:
+      return `Roast this content:\n\n${content}`;
+  }
+}
+
+function calculateRoastScore(roast: string): number {
+  // Factors that increase score:
+  const factors = {
+    trumpisms: ['tremendous', 'huge', 'bigly', 'sad', 'fake', 'believe me'],
+    capitalizedWords: roast.match(/[A-Z]{2,}/g)?.length || 0,
+    exclamationMarks: (roast.match(/!/g) || []).length,
+    length: roast.length,
+  };
+
+  let score = 50; // Base score
+
+  // Add points for Trump-like phrases
+  factors.trumpisms.forEach(word => {
+    if (roast.toLowerCase().includes(word)) score += 5;
+  });
+
+  // Add points for CAPITALIZED words (max 20 points)
+  score += Math.min(factors.capitalizedWords * 2, 20);
+
+  // Add points for exclamation marks (max 15 points)
+  score += Math.min(factors.exclamationMarks * 3, 15);
+
+  // Add points for length (max 10 points)
+  score += Math.min(Math.floor(factors.length / 50), 10);
+
+  // Ensure score is between 0 and 100
+  return Math.min(Math.max(score, 0), 100);
 }
 
 // Fallback function for mock response when API keys are not available
