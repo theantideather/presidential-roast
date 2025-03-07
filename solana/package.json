@@ -1,0 +1,40 @@
+{
+  "name": "presidential-roast-solana",
+  "version": "0.1.0",
+  "description": "Solana smart contracts for Presidential Roast",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "anchor test",
+    "build": "anchor build",
+    "deploy:devnet": "anchor deploy --provider.cluster devnet",
+    "deploy:mainnet": "anchor deploy --provider.cluster mainnet",
+    "deploy:token": "ts-node scripts/deploy.ts"
+  },
+  "keywords": [
+    "solana",
+    "anchor",
+    "blockchain",
+    "nft",
+    "token"
+  ],
+  "author": "Presidential Roast Team",
+  "license": "MIT",
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.29.0",
+    "@metaplex-foundation/mpl-token-metadata": "^3.1.0",
+    "@solana/spl-token": "^0.3.8",
+    "@solana/web3.js": "^1.77.3",
+    "bs58": "^5.0.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.0",
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^20.0.0",
+    "chai": "^4.3.4",
+    "mocha": "^9.0.3",
+    "ts-mocha": "^10.0.0",
+    "typescript": "^5.1.6"
+  }
+} 
