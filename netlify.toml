@@ -7,6 +7,9 @@
   NPM_FLAGS = "--legacy-peer-deps"
   NEXT_TELEMETRY_DISABLED = "1"
 
+[functions]
+  node_bundler = "esbuild"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
