@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FaArrowDown } from 'react-icons/fa';
@@ -8,12 +8,12 @@ import { FaArrowDown } from 'react-icons/fa';
 export default function Hero() {
   const [isAnimated, setIsAnimated] = useState(false);
   
-  useState(() => {
+  useEffect(() => {
     // Delay animation to allow page load
     setTimeout(() => {
       setIsAnimated(true);
     }, 300);
-  });
+  }, []);
   
   return (
     <section className="relative min-h-[70vh] flex items-center bg-gradient-to-b from-blue-900 to-blue-800 overflow-hidden">

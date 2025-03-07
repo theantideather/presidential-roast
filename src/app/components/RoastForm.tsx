@@ -31,19 +31,24 @@ export default function RoastForm({ onRoastResult, onRoastError, setIsLoading }:
   
   // Check if wallet is connected on mount (for the bonus tokens messaging)
   useEffect(() => {
+    // Only check localStorage on the client side
     const checkWalletConnection = () => {
-      const isConnected = localStorage.getItem('walletAddress') !== null;
-      setIsWalletConnected(isConnected);
+      if (typeof window !== 'undefined') {
+        const isConnected = localStorage.getItem('walletAddress') !== null;
+        setIsWalletConnected(isConnected);
+      }
     };
     
     checkWalletConnection();
     
     // Listen for wallet connection changes
-    window.addEventListener('walletConnectionChanged', checkWalletConnection);
-    
-    return () => {
-      window.removeEventListener('walletConnectionChanged', checkWalletConnection);
-    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('walletConnectionChanged', checkWalletConnection);
+      
+      return () => {
+        window.removeEventListener('walletConnectionChanged', checkWalletConnection);
+      };
+    }
   }, []);
   
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
