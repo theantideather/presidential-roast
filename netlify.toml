@@ -1,10 +1,9 @@
 [build]
   command = "npm run build"
-  publish = ".next"
+  publish = "out"
   
 [build.environment]
   NODE_VERSION = "18.17.0"
-  NPM_FLAGS = "--legacy-peer-deps"
   NEXT_TELEMETRY_DISABLED = "1"
 
 [functions]
@@ -31,6 +30,7 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Handle SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
