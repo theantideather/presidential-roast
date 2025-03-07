@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "cache-clean": "rm -rf .next/cache"
+    "cache-clean": "rm -rf .next/cache",
+    "netlify-build": "next build && next export"
   },
   "dependencies": {
     "@netlify/plugin-nextjs": "^4.41.3",
@@ -22,9 +23,9 @@
     "react-toastify": "^10.0.4"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
+    "@types/node": "^20.11.16",
+    "@types/react": "^18.2.52",
+    "@types/react-dom": "^18.2.18",
     "autoprefixer": "^10.4.17",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.1.0",
@@ -34,7 +35,7 @@
   },
   "engines": {
     "node": ">=18.17.0",
-    "npm": ">=9.0.0"
+    "npm": ">=9.6.7"
   },
   "resolutions": {
     "@types/react": "^18.2.0"

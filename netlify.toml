@@ -1,6 +1,7 @@
 [build]
   command = "npm run build"
   publish = ".next"
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ./package-lock.json"
 
 [build.environment]
   NEXT_PUBLIC_SOLANA_RPC_URL = "https://api.devnet.solana.com"
@@ -37,7 +38,7 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Cache-Control = "public, max-age=0, must-revalidate"
+    Content-Security-Policy = "default-src 'self' 'unsafe-inline' 'unsafe-eval' https:; img-src 'self' https: data:; font-src 'self' https: data:;"
 
 [[headers]]
   for = "/_next/static/*"
@@ -54,4 +55,4 @@
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false 
+  force = true 

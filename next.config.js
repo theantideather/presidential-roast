@@ -14,10 +14,14 @@ const nextConfig = {
       }
     ],
   },
-  // Remove deprecated target configuration
-  output: 'standalone', // Optimized for Netlify deployment
+  // Netlify specific settings
+  output: 'export',
+  distDir: '.next',
+  generateBuildId: async () => {
+    return 'build-' + Date.now();
+  },
+  // Remove any deprecated or invalid options
   reactStrictMode: true,
-  swcMinify: true,
 };
 
 module.exports = nextConfig; 
