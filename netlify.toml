@@ -3,7 +3,9 @@
   publish = ".next"
 
 [build.environment]
-  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+  NEXT_PUBLIC_SOLANA_RPC_URL = "https://api.devnet.solana.com"
+  NEXT_PUBLIC_SOLANA_NETWORK = "devnet"
+  NODE_ENV = "production"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

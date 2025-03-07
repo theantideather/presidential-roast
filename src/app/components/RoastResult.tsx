@@ -20,7 +20,7 @@ interface RoastResultProps {
 export default function RoastResult({ roastData, onReset }: RoastResultProps) {
   console.log('RoastResult component rendered with:', roastData);
   
-  const [copied, setCopied] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
   const [provider, setProvider] = useState<PhantomProvider | null>(null);
@@ -28,9 +28,6 @@ export default function RoastResult({ roastData, onReset }: RoastResultProps) {
   const [nftMinted, setNftMinted] = useState(false);
   const [isClaimingTokens, setIsClaimingTokens] = useState(false);
   const [isMintingNFT, setIsMintingNFT] = useState(false);
-  const [isMinting, setIsMinting] = useState(false);
-  const [isMinted, setIsMinted] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
   const [phantomInstalled, setPhantomInstalled] = useState(false);
   const [nftData, setNftData] = useState<{
     mint: string;
@@ -133,9 +130,9 @@ export default function RoastResult({ roastData, onReset }: RoastResultProps) {
     
     navigator.clipboard.writeText(roastData.roast)
       .then(() => {
-        setCopied(true);
+        setIsCopied(true);
         toast.success('Roast copied to clipboard!');
-        setTimeout(() => setCopied(false), 3000);
+        setTimeout(() => setIsCopied(false), 3000);
       })
       .catch(err => {
         console.error('Failed to copy: ', err);
@@ -264,36 +261,6 @@ export default function RoastResult({ roastData, onReset }: RoastResultProps) {
     } catch (error) {
       console.error('Wallet connection error:', error);
       toast.error('Failed to connect wallet');
-    }
-  };
-  
-  const handleMintNFT = async () => {
-    if (!roastData || !isWalletConnected || !provider) {
-      toast.error('Please connect your wallet first');
-      return;
-    }
-    
-    if (nftMinted) {
-      toast.info('You have already minted this roast as an NFT');
-      return;
-    }
-    
-    setIsMinting(true);
-    
-    try {
-      const mintResult = await mintRoastNFT(provider, roastData.roast, roastData.score);
-      
-      if (mintResult.success) {
-        setNftMinted(true);
-        toast.success('Successfully minted your roast as an NFT!');
-      } else {
-        toast.error(mintResult.message || 'Failed to mint NFT');
-      }
-    } catch (error) {
-      console.error('Error minting NFT:', error);
-      toast.error('An error occurred while minting the NFT');
-    } finally {
-      setIsMinting(false);
     }
   };
   
@@ -483,15 +450,15 @@ export default function RoastResult({ roastData, onReset }: RoastResultProps) {
                 </div>
               ) : (
                 <button
-                  onClick={handleMintNFT}
-                  disabled={!isWalletConnected || isMinting}
+                  onClick={mintNFT}
+                  disabled={!isWalletConnected || isMintingNFT}
                   className={`w-full py-2 px-4 rounded-full flex items-center justify-center space-x-2 
                     ${isWalletConnected 
                       ? 'bg-purple-500 hover:bg-purple-600 text-white' 
                       : 'bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-not-allowed'
                     } transition-colors`}
                 >
-                  {isMinting ? (
+                  {isMintingNFT ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                       <span>Minting...</span>

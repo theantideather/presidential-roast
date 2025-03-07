@@ -14,6 +14,31 @@ declare global {
   }
 }
 
+interface RoastResult {
+  roast: string;
+  score: number;
+  isExecutiveOrder: boolean;
+  analysis?: string;  // Make analysis optional since it might be generated later
+  imageUrl?: string;
+}
+
+interface RoastFormProps {
+  onRoastGenerated: (roastResult: RoastResult) => void;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
+}
+
+interface RoastResultComponentProps {
+  roastData: {
+    roast: string;
+    score: number;
+    analysis: string;
+    imageUrl?: string;
+  };
+  onReset: () => void;
+}
+
 export default function Home() {
   // State to track if a roast has been generated
   const [showResult, setShowResult] = useState(false);
@@ -23,12 +48,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   
   // State to store the generated roast data
-  const [roastData, setRoastData] = useState<{
-    roast: string;
-    score: number;
-    analysis: string;
-    imageUrl?: string;
-  } | null>(null);
+  const [roastData, setRoastData] = useState<RoastResult | null>(null);
 
   // Check for wallet connection on component mount
   useEffect(() => {
@@ -45,7 +65,7 @@ export default function Home() {
         try {
           // @ts-ignore - Solana isn't typed by default
           window.solana.connect({ onlyIfTrusted: true })
-            .then((response: any) => {
+            .then((response: { publicKey: { toString: () => string } }) => {
               if (response.publicKey) {
                 // Store wallet address in localStorage
                 localStorage.setItem('walletAddress', response.publicKey.toString());
@@ -56,7 +76,7 @@ export default function Home() {
                 console.log('Wallet auto-connected:', response.publicKey.toString());
               }
             })
-            .catch((err: any) => {
+            .catch((err: Error) => {
               console.log('Wallet auto-connect error (expected if not previously connected):', err);
             });
         } catch (error) {
@@ -67,19 +87,14 @@ export default function Home() {
   }, []);
   
   // Handler for when a roast is generated
-  const handleRoastGenerated = (roastResult: {
-    roast: string;
-    score: number;
-    isExecutiveOrder: boolean;
-    analysis?: string;
-    imageUrl?: string;
-  }) => {
+  const handleRoastGenerated = (roastResult: RoastResult) => {
     console.log('handleRoastGenerated called with:', roastResult);
     
     // Create a properly formatted result with analysis
-    const formattedResult = {
+    const formattedResult: RoastResult = {
       roast: roastResult.roast,
       score: roastResult.score,
+      isExecutiveOrder: roastResult.isExecutiveOrder,
       analysis: roastResult.analysis || generateAnalysis(roastResult.score, roastResult.isExecutiveOrder),
       imageUrl: roastResult.imageUrl || getRandomGif(roastResult.score)
     };
@@ -238,11 +253,16 @@ export default function Home() {
         </section>
         
         {/* Roast Result Section - Only shown after generating a roast */}
-        {showResult && roastData ? (
+        {showResult && roastData && roastData.analysis ? (
           <section id="roast-result" className="mb-16">
             <div className="max-w-4xl mx-auto">
               <RoastResult 
-                roastData={roastData}
+                roastData={{
+                  roast: roastData.roast,
+                  score: roastData.score,
+                  analysis: roastData.analysis,
+                  imageUrl: roastData.imageUrl
+                }}
                 onReset={handleReset}
               />
             </div>

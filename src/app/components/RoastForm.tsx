@@ -5,14 +5,16 @@ import axios from 'axios';
 
 type RoastType = 'resume' | 'idea' | 'twitter';
 
+interface RoastResult {
+  roast: string;
+  score: number;
+  isExecutiveOrder: boolean;
+  analysis?: string;
+  imageUrl?: string;
+}
+
 interface RoastFormProps {
-  onRoastGenerated: (roastResult: {
-    roast: string;
-    score: number;
-    isExecutiveOrder: boolean;
-    analysis?: string;
-    imageUrl?: string;
-  }) => void;
+  onRoastGenerated: (roastResult: RoastResult) => void;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
@@ -187,11 +189,11 @@ export default function RoastForm({ onRoastGenerated, isLoading, setIsLoading, s
       onRoastGenerated({
         roast: generatedRoast,
         score,
-        isExecutiveOrder,
+        isExecutiveOrder
       });
       
       // Show success message
-      toast.success('ROAST GENERATED SUCCESSFULLY! BIGLY!', { icon: '🔥' as any });
+      toast.success('ROAST GENERATED SUCCESSFULLY! BIGLY!');
       
       // Don't manually set isLoading here, it will be handled by the parent component
     } catch (error) {
