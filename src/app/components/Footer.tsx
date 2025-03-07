@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FaTwitter, FaGithub, FaDiscord, FaWallet, FaStar } from 'react-icons/fa';
+import { FaTwitter, FaGithub, FaDiscord, FaWallet, FaStar, FaHeart } from 'react-icons/fa';
 
 export default function Footer() {
   return (
@@ -77,6 +77,21 @@ export default function Footer() {
           <div className="mb-4 inline-block presidential-gradient p-3 rounded-lg">
             <h4 className="text-xl font-bold text-black trumpify">MAKE ROASTING GREAT AGAIN!</h4>
           </div>
+          
+          <p className="mb-4 flex items-center justify-center text-gray-600 dark:text-gray-400">
+            <span className="mr-2">Built with</span>
+            <FaHeart className="text-[var(--maga-red)] mx-1" />
+            <span className="mx-1">by</span>
+            <a 
+              href="https://x.com/omg14doteth?s=21" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="font-bold hover:text-[var(--maga-red)] transition-colors flex items-center"
+            >
+              theantideather
+              <FaTwitter className="ml-1 text-[#1DA1F2]" />
+            </a>
+          </p>
           
           <p className="mb-2 text-gray-600 dark:text-gray-400 text-sm">
             This site is a parody and not affiliated with any political figure or government entity.

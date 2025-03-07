@@ -6,18 +6,20 @@ import axios from 'axios';
 type RoastType = 'resume' | 'idea' | 'twitter';
 
 interface RoastFormProps {
-  onRoastGenerated?: (roastResult: {
+  onRoastGenerated: (roastResult: {
     roast: string;
     score: number;
     isExecutiveOrder: boolean;
     analysis?: string;
     imageUrl?: string;
   }) => void;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export default function RoastForm({ onRoastGenerated }: RoastFormProps) {
+export default function RoastForm({ onRoastGenerated, isLoading, setIsLoading, setError }: RoastFormProps) {
   const [roastType, setRoastType] = useState<RoastType>('idea');
-  const [isLoading, setIsLoading] = useState(false);
   const [isTwitterAuthorizing, setIsTwitterAuthorizing] = useState(false);
   const [idea, setIdea] = useState('');
   const [twitterHandle, setTwitterHandle] = useState('');
@@ -49,30 +51,51 @@ export default function RoastForm({ onRoastGenerated }: RoastFormProps) {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      
+      // Check file type (accept only text files)
+      const validFileTypes = ['text/plain', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      
+      if (!validFileTypes.includes(file.type)) {
+        setError('Please upload a valid document (PDF, DOC, DOCX, or TXT)');
+        toast.error('Please upload a valid document (PDF, DOC, DOCX, or TXT)');
+        return;
+      }
+      
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('File is too large. Maximum size is 5MB');
+        toast.error('File is too large. Maximum size is 5MB');
+        return;
+      }
+      
       setFileName(file.name);
       
-      try {
-        // For text files, read directly
-        if (file.type === 'text/plain') {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            if (event.target?.result) {
-              setFileContent(event.target.result as string);
-              toast.success('Resume loaded successfully!');
-            }
-          };
-          reader.readAsText(file);
-        } 
-        // For all other file types, we'll just use the filename
-        else {
-          // Simplified approach - just use filename for all non-text files
-          setFileContent(`Resume from ${file.name} (File content would be extracted in production)`);
-          toast.success(`File "${file.name}" received! Ready for roasting!`);
+      // Read file content
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        
+        if (text.length < 50) {
+          setError('File content is too short. Please upload a more substantial document');
+          toast.error('File content is too short. Please upload a more substantial document');
+          return;
         }
-      } catch (error) {
-        console.error('Error processing file:', error);
-        toast.error('Failed to process the file. Please try again.');
-      }
+        
+        if (text.length > 10000) {
+          setFileContent(text.substring(0, 10000));
+          toast.info('File was truncated as it was too long');
+        } else {
+          setFileContent(text);
+        }
+      };
+      
+      reader.onerror = () => {
+        setError('Error reading file');
+        toast.error('Error reading file');
+      };
+      
+      reader.readAsText(file);
     }
   };
   
@@ -105,106 +128,76 @@ export default function RoastForm({ onRoastGenerated }: RoastFormProps) {
   
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    console.log('RoastForm handleSubmit called');
     
-    let content = '';
+    // Validate form based on roast type
+    if (roastType === 'resume' && !fileContent) {
+      setError('Please upload your resume first!');
+      toast.error('Please upload your resume first!');
+      return;
+    }
+    
+    if (roastType === 'idea' && idea.trim().length < 10) {
+      setError('Please provide a more detailed idea (at least 10 characters).');
+      toast.error('Please provide a more detailed idea (at least 10 characters).');
+      return;
+    }
+    
+    if (roastType === 'twitter' && !twitterAuthorized) {
+      setError('Please enter your Twitter handle first!');
+      toast.error('Please enter your Twitter handle first!');
+      return;
+    }
+    
+    // Clear previous errors
+    setError(null);
+    
+    // Show loading state
+    setIsLoading(true);
+    console.log('Setting loading state to true, generating roast...');
+    
+    // Generate a mock roast immediately instead of in setTimeout
+    let generatedRoast = '';
+    let score = 0;
+    let isExecutiveOrder = false;
     
     if (roastType === 'resume') {
-      if (!fileName) {
-        toast.error('Please upload your resume first!');
-        return;
-      }
-      content = fileContent || 'Sample resume content for demonstration purposes';
+      generatedRoast = generateResumeRoast(fileContent);
+      score = Math.floor(Math.random() * 30) + 70; // 70-99
+    } else if (roastType === 'idea') {
+      generatedRoast = generateIdeaRoast(idea);
+      score = Math.floor(Math.random() * 50) + 50; // 50-99
+    } else {
+      generatedRoast = generateTwitterRoast(twitterUsername || twitterHandle);
+      score = Math.floor(Math.random() * 60) + 40; // 40-99
     }
     
-    if (roastType === 'idea') {
-      if (idea.trim().length < 10) {
-        toast.error('Please provide a more detailed idea (at least 10 characters).');
-        return;
-      }
-      content = idea;
-    }
+    // 10% chance of getting an executive order (special roast)
+    isExecutiveOrder = Math.random() < 0.1;
     
-    if (roastType === 'twitter') {
-      if (!twitterHandle.trim()) {
-        toast.error('Please enter your Twitter handle first!');
-        return;
-      }
-      
-      // No need for authorization, just use the handle directly
-      content = twitterHandle.replace('@', '');
-    }
+    console.log('Generated mock roast:', { generatedRoast, score, isExecutiveOrder });
     
-    setIsLoading(true);
-    
+    // Use a promise-based approach with setTimeout
     try {
-      // Get OpenAI API key from environment variables
-      const openAiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
-      let result;
+      console.log('Waiting 2 seconds to simulate API delay...');
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate 2 second API delay
       
-      if (!openAiKey) {
-        // No API key, use mock data
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
-        
-        const mockRoasts = [
-          {
-            roast: "Look folks, this idea is a DISASTER. Believe me. Total failure waiting to happen. Everyone says so. SAD!",
-            score: 3,
-            isExecutiveOrder: false
-          },
-          {
-            roast: "This resume? Probably the worst resume in the history of resumes. And I've seen a lot of resumes, let me tell you. TERRIBLE education. No experience. Low energy candidate!",
-            score: 2,
-            isExecutiveOrder: false
-          },
-          {
-            roast: "Wow, I just looked at this TREMENDOUS idea. Really fantastic stuff. Very smart people behind this. I'm impressed, which isn't easy to do. I give it my COMPLETE endorsement!",
-            score: 9,
-            isExecutiveOrder: true
-          },
-          {
-            roast: "This Twitter account, @" + content + ", let me tell you about this Twitter account. It's FAKE NEWS! The BIGGEST FAKER on Twitter. Terrible followers, all of them LOSERS and HATERS! Sad!",
-            score: 4,
-            isExecutiveOrder: false
-          }
-        ];
-        
-        // Pick a mock roast based on the roast type
-        if (roastType === 'twitter') {
-          result = mockRoasts[3]; // Use the Twitter specific mock
-        } else {
-          // For other types, pick a random one from the first three
-          result = mockRoasts[Math.floor(Math.random() * 3)];
-        }
-      } else {
-        // Real API call to our backend
-        const response = await axios.post('/api/roast', {
-          type: roastType,
-          content: content
-        });
-        
-        result = response.data;
-      }
+      console.log('Calling onRoastGenerated callback with result...');
+      // Call the callback function with the generated roast data
+      onRoastGenerated({
+        roast: generatedRoast,
+        score,
+        isExecutiveOrder,
+      });
       
-      toast.success('ROAST GENERATED SUCCESSFULLY! BIGLY! 🔥', { icon: '🔥' });
+      // Show success message
+      toast.success('ROAST GENERATED SUCCESSFULLY! BIGLY!', { icon: '🔥' as any });
       
-      // Call the callback function with the roast result
-      if (onRoastGenerated) {
-        // Ensure we have additional properties needed by RoastResult
-        const enhancedResult = {
-          ...result,
-          analysis: typeof result.analysis === 'string' 
-            ? result.analysis 
-            : `The President has analyzed your submission with a score of ${result.score}/10.
-               ${result.isExecutiveOrder ? 'It has been granted EXECUTIVE ORDER status!' : 'It was REJECTED for an executive order.'}`,
-          imageUrl: result.imageUrl || getTrumpReactionGif(result.score)
-        };
-        onRoastGenerated(enhancedResult);
-      }
-      
+      // Don't manually set isLoading here, it will be handled by the parent component
     } catch (error) {
       console.error('Error generating roast:', error);
+      setError('Failed to generate roast. Please try again.');
       toast.error('Failed to generate roast. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -442,4 +435,202 @@ function getTrumpReactionGif(score: number): string {
   } else {
     return lowScoreGifs[Math.floor(Math.random() * lowScoreGifs.length)];
   }
-} 
+}
+
+// Generate a resume roast that actually analyzes the content
+const generateResumeRoast = (resumeText: string): string => {
+  // Extract key aspects from the resume to roast
+  const lowercaseResume = resumeText.toLowerCase();
+  
+  // Check for education
+  const hasEducation = lowercaseResume.includes('education') || lowercaseResume.includes('university') || lowercaseResume.includes('college') || lowercaseResume.includes('degree');
+  
+  // Check for experience
+  const hasExperience = lowercaseResume.includes('experience') || lowercaseResume.includes('work') || lowercaseResume.includes('job');
+  
+  // Check for skills
+  const hasSkills = lowercaseResume.includes('skills') || lowercaseResume.includes('proficient') || lowercaseResume.includes('expertise');
+  
+  // Check common resume buzzwords
+  const buzzwords = ['synergy', 'leverage', 'strategic', 'innovative', 'dynamic', 'proactive', 'solution', 'passionate', 'driven', 'team player'];
+  const foundBuzzwords = buzzwords.filter(word => lowercaseResume.includes(word));
+  
+  // Generate a personalized roast based on resume content
+  let roastParts = [];
+  
+  // Opening line
+  roastParts.push("I just reviewed what people are calling your \"resume\" - if we can even call it that! TERRIBLE!");
+  
+  // Education roast
+  if (hasEducation) {
+    roastParts.push("Your education? OVERRATED schools teaching WORTHLESS subjects! Everyone knows real success comes from NATURAL TALENT, not those FAILING institutions!");
+  } else {
+    roastParts.push("No education worth mentioning? SAD! Some people say education isn't important, but those people don't work for ME!");
+  }
+  
+  // Experience roast
+  if (hasExperience) {
+    roastParts.push("Your so-called \"experience\" is with LOW ENERGY companies doing MEANINGLESS work! Not impressed! I've had interns with better experience by age 18!");
+  } else {
+    roastParts.push("Where's the EXPERIENCE? Empty like the promises of a politician - except mine, which are the best promises, everyone says so!");
+  }
+  
+  // Skills roast
+  if (hasSkills) {
+    roastParts.push("Your skills section? WEAK! These aren't skills, these are things my grandchildren could do better!");
+  } else {
+    roastParts.push("No skills listed? At least you're honest about your COMPLETE LACK OF ABILITIES!");
+  }
+  
+  // Buzzword roast
+  if (foundBuzzwords.length > 0) {
+    roastParts.push(`Using buzzwords like "${foundBuzzwords.join(', ')}"? FAKE RESUME language used by people with NO ACHIEVEMENTS to hide behind big words!`);
+  }
+  
+  // Closing assessment
+  roastParts.push("Overall - NOT HIRING MATERIAL! I've seen better qualifications from a DOORKNOB! Would never make it in my tremendous organization. SAD!");
+  
+  return roastParts.join(" ");
+};
+
+// Generate an idea roast that actually analyzes the content
+const generateIdeaRoast = (ideaText: string): string => {
+  const lowercaseIdea = ideaText.toLowerCase();
+  
+  // Check for common startup categories
+  const isApp = lowercaseIdea.includes('app') || lowercaseIdea.includes('mobile') || lowercaseIdea.includes('application');
+  const isAI = lowercaseIdea.includes('ai') || lowercaseIdea.includes('artificial intelligence') || lowercaseIdea.includes('machine learning');
+  const isBlockchain = lowercaseIdea.includes('blockchain') || lowercaseIdea.includes('crypto') || lowercaseIdea.includes('token') || lowercaseIdea.includes('nft');
+  const isSocialMedia = lowercaseIdea.includes('social') || lowercaseIdea.includes('network') || lowercaseIdea.includes('platform') || lowercaseIdea.includes('community');
+  const isEcommerce = lowercaseIdea.includes('shop') || lowercaseIdea.includes('store') || lowercaseIdea.includes('ecommerce') || lowercaseIdea.includes('marketplace');
+  
+  // Check for common idea qualities
+  const isInnovative = lowercaseIdea.includes('new') || lowercaseIdea.includes('innovative') || lowercaseIdea.includes('revolutionary') || lowercaseIdea.includes('disrupt');
+  const mentionsMoney = lowercaseIdea.includes('profit') || lowercaseIdea.includes('revenue') || lowercaseIdea.includes('monetize') || lowercaseIdea.includes('funding');
+  const hasMarket = lowercaseIdea.includes('market') || lowercaseIdea.includes('customer') || lowercaseIdea.includes('client') || lowercaseIdea.includes('user');
+  
+  // Count words as a proxy for idea complexity
+  const wordCount = ideaText.split(/\s+/).length;
+  const isDetailedIdea = wordCount > 50;
+  
+  // Generate a personalized roast based on idea content
+  let roastParts = [];
+  
+  // Opening line
+  roastParts.push(`So I just heard about your "brilliant" idea - ${ideaText.substring(0, 40)}... - and let me tell you, it's one of the ideas I've ever heard. TRULY SPECIAL, but not in a good way!`);
+  
+  // Category-specific roast
+  if (isApp) {
+    roastParts.push("Another APP? The world needs another app like I need a smaller inauguration crowd! SATURATED MARKET! DYING PLATFORM!");
+  }
+  
+  if (isAI) {
+    roastParts.push("AI this, AI that. Everyone's doing AI now! You're too late to the party - like showing up when all the beautiful cake is GONE!");
+  }
+  
+  if (isBlockchain) {
+    roastParts.push("BLOCKCHAIN? People are still trying to make these Internet money schemes work? Your crypto idea is worth less than a VENEZUELAN BOLÍVAR!");
+  }
+  
+  if (isSocialMedia) {
+    roastParts.push("Another social platform? FAILING TWITTER and BORING FACEBOOK aren't enough for people? Your platform would have fewer users than my first campaign had votes in California!");
+  }
+  
+  if (isEcommerce) {
+    roastParts.push("E-commerce? You're going against AMAZON? Good luck with that! Like bringing a plastic spoon to a nuclear war!");
+  }
+  
+  // Idea quality roast
+  if (!isInnovative) {
+    roastParts.push("There's NOTHING new here! I've heard this idea from at least 15 different people, all with more TALENT and better EXECUTION plans!");
+  }
+  
+  if (!mentionsMoney) {
+    roastParts.push("Where's the MONEY? No revenue model? In business, we care about PROFITS! Something you clearly know NOTHING about!");
+  }
+  
+  if (!hasMarket) {
+    roastParts.push("Who's your MARKET? No customers mentioned! The best ideas, and I know the best ideas, have HUGE markets! TREMENDOUS markets!");
+  }
+  
+  if (!isDetailedIdea) {
+    roastParts.push("Too SHORT! The idea has no DEPTH! My young son Baron could come up with a more detailed business plan!");
+  }
+  
+  // Closing assessment
+  const closingOptions = [
+    "This idea would FAIL FASTER than a CNN lie detector test! NOT INVESTABLE!",
+    "The only investment this deserves is being invested in a PAPER SHREDDER! TERRIBLE!",
+    "If I pitched this on Shark Tank, they would need a BIGGER TANK just to FLUSH IT DOWN! SAD!",
+    "This idea is DOA - DEAD ON ARRIVAL! Even my worst hotels perform better than this would!"
+  ];
+  
+  roastParts.push(closingOptions[Math.floor(Math.random() * closingOptions.length)]);
+  
+  return roastParts.join(" ");
+};
+
+// Generate a Twitter roast that actually analyzes the username
+const generateTwitterRoast = (twitterHandle: string): string => {
+  // Extract characteristics from the handle
+  const hasNumbers = /\d/.test(twitterHandle);
+  const hasUnderscores = twitterHandle.includes('_');
+  const isAllCaps = twitterHandle === twitterHandle.toUpperCase() && twitterHandle.length > 3;
+  const containsCommonTerms = ['crypto', 'nft', 'eth', 'btc', 'web3', 'dev', 'coder', 'real', 'official', 'the', 'mr', 'mrs', 'miss', 'guru', 'expert', 'coach', 'influencer'].some(term => twitterHandle.toLowerCase().includes(term));
+  const isTooLong = twitterHandle.length > 12;
+  const isTooShort = twitterHandle.length < 4;
+  
+  // Generate a personalized roast
+  let roastParts = [];
+  
+  // Opening line
+  roastParts.push(`Just took a look at @${twitterHandle}'s Twitter account. VERY LOW ENERGY! Couldn't find a single tweet that didn't bore me to sleep.`);
+  
+  // Handle-specific roasts
+  if (hasNumbers) {
+    roastParts.push("Using NUMBERS in your handle? Not enough creativity to come up with a real name? SAD!");
+  }
+  
+  if (hasUnderscores) {
+    roastParts.push("Underscores in the name? What is this, a DATABASE FIELD? Very amateur!");
+  }
+  
+  if (isAllCaps) {
+    roastParts.push("ALL CAPS username? You think SHOUTING makes you important? It doesn't!");
+  }
+  
+  if (containsCommonTerms) {
+    roastParts.push("Using terms like 'crypto' or 'official' in your handle? TRYING TOO HARD to look legitimate!");
+  }
+  
+  if (isTooLong) {
+    roastParts.push("Handle is WAY TOO LONG! The best handles are SHORT and IMPACTFUL. Like mine!");
+  }
+  
+  if (isTooShort) {
+    roastParts.push("Handle is TOO SHORT! Probably grabbed early when Twitter was still relevant! ANCIENT!");
+  }
+  
+  // Follower and content roasts
+  const followerOptions = [
+    "You have FEWER FOLLOWERS than I have HOTELS! And believe me, I own a lot of hotels!",
+    "Your follower count is EMBARRASSING! I get more people at my smallest rallies!",
+    "You call that a following? I've seen GHOST TOWNS with more activity!",
+    "Nobody's listening to your BORING tweets! SAD!"
+  ];
+  
+  const contentOptions = [
+    "Your content is as EXCITING as watching PAINT DRY in SLOW MOTION!",
+    "I've seen more engaging content from a TELEMARKETER SCRIPT!",
+    "Your tweets make CNN's ratings look TREMENDOUS by comparison!",
+    "Even SLEEPY JOE could write more engaging content!"
+  ];
+  
+  roastParts.push(followerOptions[Math.floor(Math.random() * followerOptions.length)]);
+  roastParts.push(contentOptions[Math.floor(Math.random() * contentOptions.length)]);
+  
+  // Closing line
+  roastParts.push("There isn't enough CAFFEINE in the WORLD to make your account INTERESTING! Maybe try something else? Sad!");
+  
+  return roastParts.join(" ");
+}; 

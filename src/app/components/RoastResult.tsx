@@ -8,17 +8,18 @@ import axios from 'axios';
 import { getPhantomProvider, claimRoastTokens, mintRoastNFT, PhantomProvider } from '../../utils/PhantomWallet';
 
 interface RoastResultProps {
-  result: {
+  roastData: {
     roast: string;
     score: number;
     analysis: string;
     imageUrl?: string;
-  } | null;
-  isLoading: boolean;
-  error: string | null;
+  };
+  onReset: () => void;
 }
 
-export default function RoastResult({ result, isLoading, error }: RoastResultProps) {
+export default function RoastResult({ roastData, onReset }: RoastResultProps) {
+  console.log('RoastResult component rendered with:', roastData);
+  
   const [copied, setCopied] = useState(false);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
@@ -47,6 +48,7 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
   };
   
   useEffect(() => {
+    console.log('RoastResult useEffect running with roastData:', roastData);
     // Check wallet connection status
     const checkWalletConnection = () => {
       const phantomProvider = getPhantomProvider();
@@ -63,7 +65,7 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
     };
     
     // Reset state when new result
-    if (result) {
+    if (roastData) {
       setTokensClaimed(false);
       setNftMinted(false);
     }
@@ -76,7 +78,7 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
     return () => {
       window.removeEventListener('walletConnectionChanged', checkWalletConnection);
     };
-  }, [result]);
+  }, [roastData]);
   
   useEffect(() => {
     const checkWalletStatus = () => {
@@ -127,9 +129,9 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
   };
   
   const copyToClipboard = () => {
-    if (!result) return;
+    if (!roastData) return;
     
-    navigator.clipboard.writeText(result.roast)
+    navigator.clipboard.writeText(roastData.roast)
       .then(() => {
         setCopied(true);
         toast.success('Roast copied to clipboard!');
@@ -142,14 +144,14 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
   };
   
   const shareOnTwitter = () => {
-    if (!result) return;
+    if (!roastData) return;
     
-    const tweetText = encodeURIComponent(`I just got roasted by Presidential Roast! My score: ${result.score}/100\n\n"${result.roast.substring(0, 100)}..."\n\nTry it yourself at presidentialroast.app`);
+    const tweetText = encodeURIComponent(`I just got roasted by Presidential Roast! My score: ${roastData.score}/100\n\n"${roastData.roast.substring(0, 100)}..."\n\nTry it yourself at presidentialroast.app`);
     window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, '_blank');
   };
   
   const claimTokens = async () => {
-    if (!result || !isWalletConnected || !provider) {
+    if (!roastData || !isWalletConnected || !provider) {
       toast.error('Please connect your wallet first');
       return;
     }
@@ -162,7 +164,7 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
     setIsClaimingTokens(true);
     
     try {
-      const tokenAmount = getTokenAmount(result.score);
+      const tokenAmount = getTokenAmount(roastData.score);
       const claimResult = await claimRoastTokens(provider, tokenAmount);
       
       if (claimResult.success) {
@@ -180,7 +182,7 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
   };
   
   const mintNFT = async () => {
-    if (!result || !isWalletConnected || !provider) {
+    if (!roastData || !isWalletConnected || !provider) {
       toast.error('Please connect your wallet first');
       return;
     }
@@ -193,7 +195,7 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
     setIsMintingNFT(true);
     
     try {
-      const mintResult = await mintRoastNFT(provider, result.roast, result.score);
+      const mintResult = await mintRoastNFT(provider, roastData.roast, roastData.score);
       
       if (mintResult.success) {
         setNftMinted(true);
@@ -210,14 +212,14 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
   };
   
   const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(result?.roast || '');
+    navigator.clipboard.writeText(roastData?.roast || '');
     setIsCopied(true);
     toast.success('Roast copied to clipboard!');
     setTimeout(() => setIsCopied(false), 3000);
   };
   
   const handleShareOnTwitter = () => {
-    const text = encodeURIComponent(`I just got roasted by Presidential Roast! My score: ${result?.score}/100\n\n"${result?.roast.substring(0, 100)}..."\n\nTry it yourself at presidentialroast.app`);
+    const text = encodeURIComponent(`I just got roasted by Presidential Roast! My score: ${roastData?.score}/100\n\n"${roastData?.roast.substring(0, 100)}..."\n\nTry it yourself at presidentialroast.app`);
     window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
   };
   
@@ -266,7 +268,7 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
   };
   
   const handleMintNFT = async () => {
-    if (!result || !isWalletConnected || !provider) {
+    if (!roastData || !isWalletConnected || !provider) {
       toast.error('Please connect your wallet first');
       return;
     }
@@ -279,7 +281,7 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
     setIsMinting(true);
     
     try {
-      const mintResult = await mintRoastNFT(provider, result.roast, result.score);
+      const mintResult = await mintRoastNFT(provider, roastData.roast, roastData.score);
       
       if (mintResult.success) {
         setNftMinted(true);
@@ -301,33 +303,35 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
     return `${address.substring(0, 4)}...${address.substring(address.length - 4)}`;
   };
   
-  if (isLoading) {
-    return (
-      <div className="border border-gray-300 rounded-lg p-6 mt-8 text-center animate-pulse">
-        <h2 className="text-xl font-bold mb-4">Your Roast Is Being Prepared...</h2>
-        <p className="text-gray-600 mb-4">The President is reviewing your submission...</p>
-        <div className="h-4 bg-gray-200 rounded mb-4"></div>
-        <div className="h-4 bg-gray-200 rounded mb-4 w-3/4 mx-auto"></div>
-        <div className="h-4 bg-gray-200 rounded mb-4 w-1/2 mx-auto"></div>
-      </div>
-    );
+  // Early checks for loading, error, or missing data
+  if (typeof window !== 'undefined') {
+    if (!roastData) {
+      console.error("RoastResult received no roastData!");
+      return (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 gold-border text-center">
+          <h2 className="text-2xl font-bold mb-4 trumpify text-[var(--maga-red)]">
+            ERROR: MISSING ROAST DATA
+          </h2>
+          <p className="mb-4">
+            The presidential roast could not be displayed. Please try again.
+          </p>
+          <button 
+            onClick={onReset}
+            className="trump-btn"
+          >
+            TRY AGAIN
+          </button>
+        </div>
+      );
+    }
   }
   
-  if (error) {
-    return (
-      <div className="border border-red-300 bg-red-50 rounded-lg p-6 mt-8 text-center">
-        <h2 className="text-xl font-bold text-red-600 mb-4">Error</h2>
-        <p className="text-red-600 mb-4">{error}</p>
-        <p className="text-gray-600">Please try again later or contact support if the problem persists.</p>
-      </div>
-    );
-  }
-  
-  if (!result) {
+  if (!roastData) {
+    console.error("RoastResult component rendered with no data!");
     return null;
   }
   
-  const tokenAmount = getTokenAmount(result.score);
+  const tokenAmount = getTokenAmount(roastData.score);
   
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden max-w-3xl mx-auto mb-8 border-8 border-[var(--gold)]">
@@ -353,7 +357,7 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
             </div>
             <div className="text-center">
               <div className="font-bold text-[var(--maga-red)] uppercase text-sm">Roast Rating</div>
-              <div className="text-4xl font-bold trumpify">{result.score}/100</div>
+              <div className="text-4xl font-bold trumpify">{roastData.score}/100</div>
             </div>
           </div>
           
@@ -363,15 +367,15 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
               <span className="absolute top-2 left-2 text-6xl text-[var(--maga-red)] opacity-20">
                 "
               </span>
-              <p className="italic text-lg relative z-10 whitespace-pre-line font-semibold pl-6 pr-6">{result.roast}</p>
+              <p className="italic text-lg relative z-10 whitespace-pre-line font-semibold pl-6 pr-6">{roastData.roast}</p>
               <span className="absolute bottom-2 right-2 text-6xl text-[var(--maga-red)] opacity-20">
                 "
               </span>
             </div>
             
             <div className="flex justify-end">
-              <div className={`px-5 py-2 rounded-lg text-white font-bold trumpify text-sm ${result.score >= 90 ? 'bg-green-600' : result.score >= 70 ? 'bg-blue-600' : result.score >= 50 ? 'bg-yellow-600' : 'bg-red-600'}`}>
-                {result.score >= 90 ? '✅ APPROVED' : result.score >= 70 ? '✅ APPROVED' : result.score >= 50 ? '✅ APPROVED' : '❌ REJECTED'}
+              <div className={`px-5 py-2 rounded-lg text-white font-bold trumpify text-sm ${roastData.score >= 90 ? 'bg-green-600' : roastData.score >= 70 ? 'bg-blue-600' : roastData.score >= 50 ? 'bg-yellow-600' : 'bg-red-600'}`}>
+                {roastData.score >= 90 ? '✅ APPROVED' : roastData.score >= 70 ? '✅ APPROVED' : roastData.score >= 50 ? '✅ APPROVED' : '❌ REJECTED'}
               </div>
             </div>
           </div>
@@ -404,24 +408,13 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
                     {nftData.txId}
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <a 
-                    href={`https://explorer.solana.com/tx/${nftData.txId}?cluster=devnet`} 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-bold hover:bg-purple-700 transition-colors"
+                <div className="flex justify-between items-center">
+                  <button
+                    onClick={() => window.open(`https://solscan.io/tx/${nftData.txId}`, '_blank')}
+                    className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
                   >
-                    View on Solana Explorer
-                  </a>
-                  <a 
-                    href={nftData.imageUrl} 
-                    download="presidential-roast-nft.gif"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors flex items-center"
-                  >
-                    <FaDownload className="mr-1" /> Download NFT
-                  </a>
+                    View on Solscan
+                  </button>
                 </div>
               </div>
             </div>
@@ -516,10 +509,16 @@ export default function RoastResult({ result, isLoading, error }: RoastResultPro
         </div>
         
         {/* Analysis Section */}
-        {result.analysis && (
+        {roastData.analysis && (
           <div className="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4">
-            <h3 className="text-xl font-bold mb-2">Analysis</h3>
-            <p className="text-gray-700 dark:text-gray-300">{result.analysis}</p>
+            <h3 className="text-xl font-bold mb-2 trumpify">PRESIDENTIAL ANALYSIS</h3>
+            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+              {roastData.analysis.split('\n\n').map((paragraph, index) => (
+                <p key={index} className="text-gray-700 dark:text-gray-300 mb-3 last:mb-0">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
           </div>
         )}
         
