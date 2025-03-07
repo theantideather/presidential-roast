@@ -446,48 +446,10 @@ function generateResumeRoast(resumeContent: string): string {
   const experience = extractExperienceFromResume(resumeContent);
   const education = extractEducationFromResume(resumeContent);
   
-  // Generate more personalized roasts using actual content
-  let roastLines = [];
-  
-  // Add intro line
-  roastLines.push(`I just looked at this so-called resume, folks. DISASTER!`);
-  
-  // Skills section roast
-  if (skills.length > 0) {
-    const randomSkill = skills[Math.floor(Math.random() * skills.length)];
-    roastLines.push(`You list "${randomSkill}" as a skill? LAUGHABLE! I know KINDERGARTNERS with better ${randomSkill} skills than you.`);
-    
-    if (skills.length > 1) {
-      const anotherSkill = skills.filter(s => s !== randomSkill)[0];
-      roastLines.push(`And "${anotherSkill}"? Please! Who are you trying to fool?`);
-    } else {
-      roastLines.push(`Is that your only skill? Pathetic! I have TREMENDOUS skills, the best skills.`);
-    }
-  } else {
-    roastLines.push(`Your skills section is EMPTY, just like your chances of getting hired! SAD!`);
-  }
-  
-  // Experience section roast
-  if (experience) {
-    roastLines.push(`You worked at ${experience}? Never heard of them. LOW ENERGY company!`);
-    roastLines.push(`I bet they were BEGGING you to leave. Nobody keeps bad employees longer than me, believe me.`);
-  } else {
-    roastLines.push(`No real experience to speak of. ZERO! How do you expect to make America great with NO EXPERIENCE?`);
-  }
-  
-  // Education section roast
-  if (education) {
-    roastLines.push(`And this education from ${education}? Not impressive. I know people with TREMENDOUS educations.`);
-    roastLines.push(`Did they just GIVE you a degree? Because you certainly don't seem qualified!`);
-  } else {
-    roastLines.push(`School? Did you even go? Doesn't look like it! I went to the BEST schools, believe me.`);
-  }
-  
-  // Conclusion
-  roastLines.push(`Listen, I've hired the BEST people, absolutely phenomenal people for my businesses. And let me tell you, with this resume, YOU'RE FIRED before you're even hired! This is the worst resume in the history of resumes, maybe ever!`);
-  
-  // Join all parts with appropriate spacing
-  return roastLines.join(' ');
+  // Generate a unique roast using actual content
+  return `I just looked at this so-called resume, folks. Let me tell you, ${skills.length > 0 ? `you list "${skills[0]}" as a skill - SAD! I've seen much better, believe me.` : 'your skills section is EMPTY, just like your chances of getting hired!'} ${experience ? `You worked at ${experience}? Never heard of them. LOW ENERGY company!` : 'No real experience to speak of. ZERO!'} ${education ? `And this education from ${education}? Not impressive. I know people with TREMENDOUS educations.` : 'School? Did you even go? Doesn\'t look like it!'}
+
+Listen, I've hired the BEST people, absolutely phenomenal people for my businesses. And let me tell you, with this resume, YOU'RE FIRED before you're even hired! Maybe try adding some ACTUAL ACCOMPLISHMENTS next time. This is the worst resume in the history of resumes, maybe ever!`;
 }
 
 function generateIdeaRoast(idea: string): string {
@@ -495,121 +457,35 @@ function generateIdeaRoast(idea: string): string {
   const keywords = idea.toLowerCase().match(/\b\w{5,}\b/g) || ['idea', 'business', 'startup'];
   const mainTopic = keywords.length > 3 ? keywords[Math.floor(Math.random() * 3)] : keywords[0];
   
-  // Look for specific topics that can be roasted
-  const hasTech = /\b(app|website|software|tech|ai|blockchain|crypto|nft|web3)\b/i.test(idea);
-  const hasProduct = /\b(product|device|gadget|invention)\b/i.test(idea);
-  const hasService = /\b(service|platform|marketplace|subscription)\b/i.test(idea);
-  const hasFinance = /\b(money|finance|banking|investment|profit|revenue)\b/i.test(idea);
-  
   // Generate a unique roast focused on the main topic
-  let roastLines = [];
-  
-  // Intro
-  roastLines.push(`So I just heard about this ${mainTopic.toUpperCase()} idea, and let me tell you, it's a COMPLETE DISASTER!`);
-  
-  // Comment on the verbosity
-  if (idea.length > 200) {
-    roastLines.push(`Very long-winded explanation, folks! SO BORING! I almost fell asleep reading it!`);
-  } else if (idea.length > 100) {
-    roastLines.push(`You talk too much about nothing important. Get to the point!`);
-  } else {
-    roastLines.push(`You barely explained anything! Low effort! SAD!`);
-  }
-  
-  // Topic-specific roasts
-  if (hasTech) {
-    roastLines.push(`Another tech thing? My 10-year-old son knows more about technology, believe me. He's fantastic with the cyber!`);
-    roastLines.push(`Silicon Valley would LAUGH at this idea. They only fund winners, not LOSERS!`);
-  }
-  
-  if (hasProduct) {
-    roastLines.push(`This product would NEVER sell. It's like trying to sell STEAKS at a vegan restaurant. I know products, I have the BEST products.`);
-  }
-  
-  if (hasService) {
-    roastLines.push(`This service is a JOKE! Nobody would pay for this. I've seen better business plans written by FAILING college students.`);
-  }
-  
-  if (hasFinance) {
-    roastLines.push(`Money? You think you understand MONEY? I wrote the book on deals! This wouldn't make a PENNY!`);
-  }
-  
-  // Competition roast
-  roastLines.push(`${Math.random() > 0.5 ? 'China is already doing it, and they're doing it better. AMERICA FIRST!' : 'Mexico sent us their idea, and it\'s not their best idea!'}`);
-  
-  // App-specific comment
-  if (idea.includes('app')) {
-    roastLines.push(`Another app? The app market is SATURATED! Nobody wants another app, believe me!`);
-  } else {
-    roastLines.push(`Not even an app? Everyone has apps these days. LOW TECH!`);
-  }
-  
-  // Conclusion
-  roastLines.push(`You want to succeed? Think BIGGER and more BEAUTIFUL, like my tremendous buildings. This idea might be the worst trade deal in the history of trade deals, maybe ever!`);
-  
-  // Join all parts with appropriate spacing
-  return roastLines.join(' ');
+  return `So I just heard about this ${mainTopic} idea, and let me tell you, it's a DISASTER! ${idea.length > 100 ? 'Very long-winded explanation, boring! I almost fell asleep!' : 'You barely explained anything! Low effort!'} 
+
+Listen, I know ideas, I have the BEST ideas. This ${mainTopic.toUpperCase()} thing you're talking about? ${Math.random() > 0.5 ? 'China is already doing it, and they\'re doing it better. AMERICA FIRST!' : 'My 10-year-old son knows more about technology, believe me. He\'s fantastic with the cyber!'}
+
+${idea.includes('app') ? 'Another app? The app market is SATURATED! Nobody wants another app, believe me!' : 'Not even an app? Everyone has apps these days. Low tech!'}
+
+You want to succeed? Think BIGGER and more BEAUTIFUL, like my tremendous buildings. This idea might be the worst trade deal in the history of trade deals, maybe ever!`;
 }
 
 function generateTwitterRoast(twitterHandle: string): string {
   // Create variations based on the handle
-  const cleanHandle = twitterHandle.replace('@', '');
-  const nameParts = cleanHandle.split(/[_.-]/);
-  const nameLength = cleanHandle.length;
+  const nameParts = twitterHandle.replace('@', '').split(/[_.-]/);
+  const nameRoast = nameParts.length > 1 
+    ? `What kind of name is @${twitterHandle}? Trying to be fancy with that "${nameParts[1]}" part? Not working!` 
+    : `@${twitterHandle}? BORING name! Should have asked ME for branding advice!`;
   
-  let roastLines = [];
+  const followerJoke = Math.random() > 0.5 
+    ? `Probably has more BOTS than real followers. SAD!`
+    : `I bet you can count your followers on one hand. I have MILLIONS!`;
   
-  // Intro
-  roastLines.push(`Just checked out @${cleanHandle}'s Twitter. VERY LOW ENERGY!`);
-  
-  // Name roast
-  if (nameParts.length > 1) {
-    roastLines.push(`What kind of name is @${cleanHandle}? Trying to be fancy with that "${nameParts[1]}" part? Not working!`);
-  } else if (nameLength > 10) {
-    roastLines.push(`@${cleanHandle}? TOO LONG! Nobody remembers long handles. SAD!`);
-  } else if (nameLength < 5) {
-    roastLines.push(`@${cleanHandle}? TOO SHORT! Couldn't think of anything better? Low creativity!`);
-  } else {
-    roastLines.push(`@${cleanHandle}? BORING name! Should have asked ME for branding advice!`);
-  }
-  
-  // Follower jokes
-  const followerJokes = [
-    `Probably has more BOTS than real followers. SAD!`,
-    `I bet you can count your followers on one hand. I have MILLIONS!`,
-    `I heard your follower count is going DOWN every day. FAILING @${cleanHandle}!`,
-    `Your engagement rate is the worst in history, maybe ever. Even CNN does better!`
-  ];
-  
-  roastLines.push(followerJokes[Math.floor(Math.random() * followerJokes.length)]);
-  
-  // Content roasts
-  const contentRoasts = [
-    `All they do is RETWEET others. No original thoughts!`,
-    `The content is FAKE NEWS, believe me!`,
-    `Just checked your last few tweets. BORING! No wonder nobody engages!`,
-    `Your tweets are a DISASTER. I've seen better content from SLEEPY JOE!`,
-    `You call those tweets? I've had more interesting SPAM emails!`
-  ];
-  
-  roastLines.push(contentRoasts[Math.floor(Math.random() * contentRoasts.length)]);
-  roastLines.push(`I have the best tweets, everyone says so. Many people are saying @${cleanHandle} should learn from me.`);
-  
-  // Engagement roast
-  roastLines.push(`The mainstream media won't report this, but @${cleanHandle} has the lowest engagement ratings in history, maybe ever.`);
-  
-  // Conclusion
-  const conclusions = [
-    `Do yourself a favor and hit that follow button on MY account instead!`,
-    `Maybe try posting something INTERESTING for once! Sad!`,
-    `I would block you, but you're not worth the effort!`,
-    `Your Twitter game is WEAK! Tremendously weak!`
-  ];
-  
-  roastLines.push(conclusions[Math.floor(Math.random() * conclusions.length)]);
-  
-  // Join all parts with appropriate spacing
-  return roastLines.join(' ');
+  // Generate a unique roast
+  return `Just took a look at @${twitterHandle}'s account. VERY LOW ENERGY! ${nameRoast} ${followerJoke}
+
+${Math.random() > 0.6 ? 'All they do is RETWEET others. No original thoughts!' : 'The content is FAKE NEWS, believe me!'} I have the best tweets, everyone says so. Many people are saying @${twitterHandle} should learn from me.
+
+The mainstream media won\'t report this, but @${twitterHandle} has the lowest engagement ratings in history, maybe ever. Even SLEEPY JOE has better numbers!  
+
+${Math.random() > 0.5 ? 'Do yourself a favor and hit that follow button on MY account instead!' : 'Maybe try posting something INTERESTING for once! Sad!'}`;
 }
 
 // Helper functions to extract information from resume
@@ -642,13 +518,13 @@ function extractSkillsFromResume(resume: string): string[] {
 
 function extractExperienceFromResume(resume: string): string {
   // Try to find company names
-  const experienceSection = resume.match(/experience:?(.+?)(?:\n\n|\n[A-Z]|$)/is);
+  const experienceSection = resume.match(/experience:?(.+?)(?:\n\n|\n[A-Z]|$)/i);
   
   if (experienceSection && experienceSection[1]) {
     // Look for company names in the experience section
     const companies = experienceSection[1].match(/\b(at|for|with) ([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2})\b/) ||
-                      experienceSection[1].match(/\b([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2}),?\s+(inc|llc|corp|corporation|company|co)\b/i) ||
-                      experienceSection[1].match(/\b([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2})\b/);
+                    experienceSection[1].match(/\b([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2}),?\s+(inc|llc|corp|corporation|company|co)\b/i) ||
+                    experienceSection[1].match(/\b([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2})\b/);
     
     if (companies && (companies[2] || companies[1])) {
       return companies[2] || companies[1];
@@ -675,7 +551,7 @@ function extractExperienceFromResume(resume: string): string {
 
 function extractEducationFromResume(resume: string): string {
   // Try to find education institutions
-  const educationSection = resume.match(/education:?(.+?)(?:\n\n|\n[A-Z]|$)/is);
+  const educationSection = resume.match(/education:?(.+?)(?:\n\n|\n[A-Z]|$)/i);
   
   if (educationSection && educationSection[1]) {
     const institutions = educationSection[1].match(/\b(University|College|School) of ([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,2})\b/) || 

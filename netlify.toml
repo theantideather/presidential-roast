@@ -1,6 +1,6 @@
 [build]
   command = "npm run build"
-  publish = "out"
+  publish = ".next"
   
 [build.environment]
   NODE_VERSION = "18.17.0"
@@ -30,8 +30,14 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Handle API routes properly
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/nextjs-api/:splat"
+  status = 200
+
 # Handle SPA routing
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/.netlify/functions/nextjs"
   status = 200 

@@ -8,8 +8,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'maga-red': '#E0162B',
-        'trump-gold': '#FFD700',
+        'maga-red': '#BF0A30',
+        'gold': '#FFD700',
       },
       fontFamily: {
         sans: ['var(--font-inter)'],

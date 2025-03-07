@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
   images: {
-    unoptimized: true,
+    domains: ['media.giphy.com', 'unavatar.io'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -14,7 +13,7 @@ const nextConfig = {
       }
     ],
   },
-  // Required for Netlify static deployment
+  // Required for Netlify deployment
   trailingSlash: true,
   reactStrictMode: true,
   // Disable type checking during build (we'll rely on local linting)
