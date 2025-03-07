@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -22,6 +23,8 @@ const nextConfig = {
   },
   // Remove any deprecated or invalid options
   reactStrictMode: true,
+  // Netlify requires this to be true for static export
+  trailingSlash: true,
 };
 
 module.exports = nextConfig; 

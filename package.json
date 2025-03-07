@@ -5,16 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "export": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "cache-clean": "rm -rf .next/cache",
-    "netlify-build": "next build && next export"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@netlify/plugin-nextjs": "^4.41.3",
     "@solana/web3.js": "^1.91.1",
     "axios": "^1.6.7",
-    "geist": "^1.2.0",
     "next": "14.1.0",
     "openai": "^4.28.0",
     "react": "^18.2.0",
@@ -23,6 +20,7 @@
     "react-toastify": "^10.0.4"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^4.41.3",
     "@types/node": "^20.11.16",
     "@types/react": "^18.2.52",
     "@types/react-dom": "^18.2.18",
