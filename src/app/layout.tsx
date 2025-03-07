@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-white">
+      <body className="min-h-screen bg-[#F5F5DC]">
         {children}
         <ToastContainer position="bottom-right" />
       </body>

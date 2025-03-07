@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
+  --background: #F5F5DC;
   --foreground: #171717;
   --primary: #3b82f6;
   --primary-dark: #1d4ed8;
@@ -28,8 +28,8 @@
   --color-secondary-dark: var(--secondary-dark);
   --color-accent: var(--accent);
   --color-accent-light: var(--accent-light);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -58,7 +58,7 @@ body {
 }
 
 .trump-gradient {
-  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+  background: linear-gradient(135deg, #F5F5DC 0%, #F0EAD6 100%);
 }
 
 .trump-text {
@@ -128,7 +128,7 @@ body {
 }
 
 .trumpify {
-  font-family: var(--font-geist-sans);
+  font-family: var(--font-sans);
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.05em;
