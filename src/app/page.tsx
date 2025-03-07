@@ -18,16 +18,17 @@ export default function Home() {
   // State to track if a roast has been generated
   const [showResult, setShowResult] = useState(false);
   
+  // State for loading and error handling
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
   // State to store the generated roast data
-  const [roastResult, setRoastResult] = useState<{
+  const [roastData, setRoastData] = useState<{
     roast: string;
     score: number;
     analysis: string;
     imageUrl?: string;
   } | null>(null);
-  
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Check for wallet connection on component mount
   useEffect(() => {
@@ -66,13 +67,23 @@ export default function Home() {
   }, []);
   
   // Handler for when a roast is generated
-  const handleRoastResult = (result: {
+  const handleRoastGenerated = (roastResult: {
     roast: string;
     score: number;
-    analysis: string;
+    isExecutiveOrder: boolean;
+    analysis?: string;
     imageUrl?: string;
   }) => {
-    setRoastResult(result);
+    // Create a properly formatted result with analysis
+    const formattedResult = {
+      roast: roastResult.roast,
+      score: roastResult.score,
+      analysis: roastResult.analysis || generateAnalysis(roastResult.score, roastResult.isExecutiveOrder),
+      imageUrl: roastResult.imageUrl || getRandomGif(roastResult.score)
+    };
+    
+    setRoastData(formattedResult);
+    setIsLoading(false);
     setError(null);
     setShowResult(true);
     
@@ -82,9 +93,38 @@ export default function Home() {
     }, 100);
   };
   
-  const handleRoastError = (errorMessage: string) => {
-    setError(errorMessage);
-    setRoastResult(null);
+  // Generate a simple analysis based on score if none provided
+  const generateAnalysis = (score: number, isExecutiveOrder: boolean): string => {
+    if (score >= 9) {
+      return "TREMENDOUS RESULT! This roast is so good, many people are saying it's the best they've ever seen. Believe me!";
+    } else if (score >= 7) {
+      return "A very good roast, lots of potential here. The President sees great things in your future!";
+    } else if (score >= 5) {
+      return "Not bad, not bad. Could use some work, but there's definitely something here.";
+    } else {
+      return "This didn't score very well. SAD! Maybe try again with something more impressive?";
+    }
+  };
+  
+  // Get a random reaction GIF based on score
+  const getRandomGif = (score: number): string => {
+    const highScoreGifs = [
+      "https://media.giphy.com/media/l0IyeMK6G2Gr1Gm3e/giphy.gif",
+      "https://media.giphy.com/media/YA6dmVW0gfIw8/giphy.gif",
+      "https://media.giphy.com/media/xTiTnHXbRoaZ1B1Mo8/giphy.gif"
+    ];
+    
+    const lowScoreGifs = [
+      "https://media.giphy.com/media/j6ZlX8ghxNFRknObVk/giphy.gif",
+      "https://media.giphy.com/media/1ube10l4xArN6/giphy.gif",
+      "https://media.giphy.com/media/xTiTnvFvRnmYGl6CEE/giphy.gif"
+    ];
+    
+    if (score >= 7) {
+      return highScoreGifs[Math.floor(Math.random() * highScoreGifs.length)];
+    } else {
+      return lowScoreGifs[Math.floor(Math.random() * lowScoreGifs.length)];
+    }
   };
   
   return (
@@ -100,12 +140,12 @@ export default function Home() {
               {showResult ? 'YOUR OFFICIAL PRESIDENTIAL ROAST' : 'GET YOUR PRESIDENTIAL ROAST'}
             </h2>
             
-            {showResult && roastResult ? (
+            {showResult ? (
               <div>
                 <RoastResult 
-                  result={roastResult} 
-                  isLoading={false} 
-                  error={null} 
+                  result={roastData}
+                  isLoading={isLoading}
+                  error={error}
                 />
                 
                 <div className="text-center mt-8">
@@ -118,11 +158,7 @@ export default function Home() {
                 </div>
               </div>
             ) : (
-              <RoastForm 
-                onRoastResult={handleRoastResult} 
-                onRoastError={handleRoastError}
-                setIsLoading={setIsLoading}
-              />
+              <RoastForm onRoastGenerated={handleRoastGenerated} />
             )}
           </div>
         </section>
