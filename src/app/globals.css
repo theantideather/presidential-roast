@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
@@ -11,8 +13,8 @@
   --accent-light: #e0f2fe;
   --presidential-blue: #002868;
   --presidential-red: #BF0A30;
-  --maga-red: #FF0000;
-  --gold: #FFD700;
+  --maga-red: #E0162B;
+  --trump-gold: #FFD700;
   --trump-orange: #F2A93B;
   --wall-beige: #F5F5DC;
 }
@@ -56,9 +58,7 @@ body {
 }
 
 .trump-gradient {
-  background: linear-gradient(45deg, var(--maga-red), var(--gold), var(--presidential-blue));
-  background-size: 200% 200%;
-  animation: gradient 10s ease infinite;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
 }
 
 .trump-text {
@@ -68,8 +68,7 @@ body {
 }
 
 .gold-border {
-  border: 4px solid var(--gold);
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+  border: 2px solid var(--trump-gold);
 }
 
 .trump-btn {
@@ -119,7 +118,7 @@ body {
 
 @keyframes trump-text-shadow {
   0% { text-shadow: 0 0 5px var(--maga-red); }
-  33% { text-shadow: 0 0 10px var(--gold); }
+  33% { text-shadow: 0 0 10px var(--trump-gold); }
   66% { text-shadow: 0 0 15px var(--presidential-blue); }
   100% { text-shadow: 0 0 5px var(--maga-red); }
 }
@@ -129,8 +128,8 @@ body {
 }
 
 .trumpify {
-  font-family: 'Impact', sans-serif;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  font-family: var(--font-geist-sans);
+  font-weight: bold;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }

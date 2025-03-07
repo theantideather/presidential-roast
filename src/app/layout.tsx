@@ -1,7 +1,12 @@
-import { GeistSans, GeistMono } from 'geist/font';
+import { Inter } from 'next/font/google';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './globals.css';
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+});
 
 export const metadata = {
   title: 'Presidential Roast',
@@ -14,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body>
+    <html lang="en" className={inter.variable}>
+      <body className="min-h-screen bg-white">
         {children}
         <ToastContainer position="bottom-right" />
       </body>
